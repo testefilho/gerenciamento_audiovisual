@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Produção - Gonetwork - Evento</title>
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="assets/logos/gonetwork-logo.png" alt="Logo da Gonetwork">
+            <h1 id="evento-nome">Evento</h1>
+            <span id="auth-status" title="Estado de autenticação" aria-live="polite">(autenticação: desconhecida)</span>
+            <button id="btn-reauth" class="auth-btn" title="Reautenticar" aria-label="Reautenticar">Reautenticar</button>
+
+            <div id="auth-panel" class="auth-panel">
+                <form id="auth-form" class="auth-form" aria-label="Formulário de autenticação">
+                    <input type="email" id="auth-email" placeholder="email@exemplo.com" aria-label="Email" />
+                    <input type="password" id="auth-password" placeholder="Senha (mín 6)" aria-label="Senha" />
+                    <div class="auth-actions">
+                        <button type="button" id="btn-signin" class="auth-btn">Entrar</button>
+                        <button type="button" id="btn-signup" class="auth-btn">Criar conta</button>
+                        <button type="button" id="btn-signout" class="auth-btn hidden">Sair</button>
+                    </div>
+                </form>
+            </div>
+            <img src="assets/logos/evento-logo.png" alt="Logo do Evento">
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#info-gerais">Informações Gerais</a></li>
+            <li><a href="#cronograma">Cronograma</a></li>
+            <li><a href="#videos">Vídeos</a></li>
+            <li><a href="#equipe">Equipe</a></li>
+            <li><a href="#entregas">Entregas</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="info-gerais" class="section">
+            <h2>Informações Gerais do Evento</h2>
+            <form id="form-info-gerais">
+                <div class="form-group">
+                    <label for="input-evento-nome">Nome do Evento:</label>
+                    <input type="text" name="evento-nome" required id="input-evento-nome" placeholder="Nome do evento">
+                </div>
+                <div class="form-group">
+                    <label for="input-evento-data">Data do Evento:</label>
+                    <input type="date" name="evento-data" required id="input-evento-data">
+                </div>
+                <div class="form-group">
+                    <label for="input-evento-inicio">Horário de Início:</label>
+                    <input type="time" name="evento-inicio" required id="input-evento-inicio">
+                </div>
+                <div class="form-group">
+                    <label for="input-evento-local">Local do Evento:</label>
+                    <input type="text" name="evento-local" required id="input-evento-local" placeholder="Ex: Casa de Shows X">
+                </div>
+                <div class="form-group">
+                    <label for="input-sala-midia">Local da Sala de Mídia:</label>
+                    <input type="text" name="sala-midia" required id="input-sala-midia" placeholder="Ex: Sala A - Setor 2">
+                </div>
+                <div class="form-group">
+                    <label for="input-senha-internet">Senha da Internet:</label>
+                    <input type="text" name="senha-internet" required id="input-senha-internet" placeholder="Senha Wi-Fi">
+                </div>
+                <div class="form-group">
+                    <label for="input-equipe-chegada">Horário de Chegada da Equipe:</label>
+                    <input type="time" name="equipe-chegada" required id="input-equipe-chegada">
+                </div>
+                <button type="submit" id="btn-salvar-info">Salvar Informações</button>
+            </form>
+        </section>
+
+        <section id="cronograma" class="section">
+            <h2>Cronograma do Evento</h2>
+            <button id="add-cronograma" class="btn-primary">+ Adicionar Item</button>
+            <table id="tabela-cronograma">
+                <thead>
+                    <tr>
+                        <th>Horário</th>
+                        <th>Atração/Ação</th>
+                        <th>Tipo</th>
+                        <th>Observações</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Itens serão adicionados dinamicamente -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="videos" class="section">
+            <h2>Gestão de Vídeos</h2>
+            <div class="video-categories">
+                <button class="category-btn active" data-category="todos">Todos</button>
+                <button class="category-btn" data-category="realtime">Real Time</button>
+                <button class="category-btn" data-category="aftermovie">Aftermovie</button>
+                <button class="category-btn" data-category="patrocinadores">Patrocinadores</button>
+            </div>
+
+            <div id="lista-videos" class="videos-container">
+                <!-- Lista de vídeos será renderizada aqui -->
+            </div>
+
+            <div class="video-form">
+                <h3>Adicionar Novo Vídeo</h3>
+                <form id="form-video">
+                    <input type="hidden" name="video-id">
+                    <div class="form-group">
+                        <label for="select-video-categoria">Categoria:</label>
+                        <select name="video-categoria" required id="select-video-categoria" aria-label="Categoria do vídeo">
+                            <option value="realtime">Real Time</option>
+                            <option value="aftermovie">Aftermovie</option>
+                            <option value="patrocinadores">Patrocinadores</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="select-video-tipo">Tipo de Vídeo:</label>
+                        <select name="video-tipo" required id="select-video-tipo" aria-label="Tipo do vídeo">
+                            <option value="banda">Banda/Atração</option>
+                            <option value="publico">Público Curtindo</option>
+                            <option value="reel">Reel</option>
+                            <option value="marca">Ativação de Marca</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="textarea-video-descricao">Descrição:</label>
+                        <textarea name="video-descricao" required id="textarea-video-descricao" placeholder="Descreva o conteúdo do vídeo"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-video-horario">Horário Previsto:</label>
+                        <input type="time" name="video-horario" id="input-video-horario">
+                    </div>
+                    <div class="form-group">
+                        <label>Formato de Entrega:</label>
+                        <input type="text" name="video-formato" placeholder="Ex: 1080p, MP4">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-video-trilha">Trilha Sonora:</label>
+                        <input type="text" name="video-trilha" id="input-video-trilha" placeholder="Nome da música/observações">
+                    </div>
+                    <div class="form-group">
+                        <label>Tempo de Vídeo:</label>
+                        <input type="text" name="video-duracao" placeholder="Ex: 30s, 1min">
+                    </div>
+                    <div class="form-group">
+                        <label>Elementos Gráficos:</label>
+                        <textarea name="video-elementos" placeholder="Logos, animações, letterings..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="select-video-status">Status:</label>
+                        <select name="video-status" id="select-video-status" aria-label="Status do vídeo">
+                            <option value="pendente">Pendente</option>
+                            <option value="edicao">Em Edição</option>
+                            <option value="aprovacao">Para Aprovação</option>
+                            <option value="revisao">Em Revisão</option>
+                            <option value="aprovado">Aprovado</option>
+                        </select>
+                    </div>
+                    <div class="form-group hidden" id="feedback-cliente-group">
+                        <label for="textarea-video-feedback">Feedback do Cliente:</label>
+                        <textarea name="video-feedback" id="textarea-video-feedback" placeholder="Digite o feedback do cliente..."></textarea>
+                    </div>
+                    <button type="submit" id="btn-salvar-video">Salvar Vídeo</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="equipe" class="section">
+            <h2>Gerenciamento de Equipe</h2>
+            <p>Funcionalidade a ser implementada em breve.</p>
+        </section>
+
+        <section id="entregas" class="section">
+            <h2>Controle de Entregas</h2>
+            <p>Funcionalidade a ser implementada em breve.</p>
+        </section>
+    </main>
+
+    <div id="notification" class="notification hidden">
+        <span id="notification-text"></span>
+    </div>
+
+    <footer>
+        <p>Sistema de Gestão de Produção - Gonetwork © 2025</p>
+    </footer>
+
+    <!-- Firebase App (core SDK) -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        // Import configuration from firebase-config.js (preencha com suas chaves)
+        import { firebaseConfig } from './firebase-config.js';
+
+        if (!firebaseConfig || !firebaseConfig.apiKey) {
+            console.warn('O arquivo firebase-config.js não está preenchido. Preencha com suas credenciais do Firebase.');
+        }
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+    </script>
+
+    <script src="scripts/script.js" type="module"></script>
+</body>
+</html>

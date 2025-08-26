@@ -1,0 +1,131 @@
+// Regras iniciais recomendadas para desenvolvimento.
+// Ajuste conforme seu modelo de dados e requisitos de segurança antes de usar em produção.
+// Regras fortalecidas com validação por campo e checagem de propriedade (ownerUid).
+// Revise os limites/tamanhos conforme seus requisitos de produção.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return uid == request.auth.uid;
+    }
+
+    // Validação de strings: obrigatório, tipo string, tamanho mínimo e máximo
+    function validString(field, minLen, maxLen) {
+      return field is string && field.size() >= minLen && field.size() <= maxLen;
+    }
+
+    // Campo string opcional (null/absent ou string com tamanho máximo)
+    function validOptionalString(field, maxLen) {
+      return (field == null) || (field is string && field.size() <= maxLen);
+    }
+
+    // Timestamp opcional (aceita null enquanto o serverTimestamp é aplicado)
+    function validOptionalTimestamp(field) {
+      return (field == null) || (field is timestamp);
+    }
+
+    // Validação do objeto infoGerais esperado no documento de evento
+    function validInfoGerais(info) {
+      return info is map
+        && info.keys().hasAll(['evento-nome'])
+        && validString(info['evento-nome'], 3, 100)
+        && (info['evento-data'] == null || (info['evento-data'] is string && info['evento-data'].matches('^\\d{4}-\\d{2}-\\d{2}$')))
+        && validOptionalString(info['local'], 200)
+        && validOptionalString(info['descricao'], 1000);
+    }
+
+    function validEventoUpdate(resourceData, currentData) {
+      // Não permitir mudança de ownerUid
+      return (resourceData.ownerUid == currentData.ownerUid)
+        && (resourceData.infoGerais == null || validInfoGerais(resourceData.infoGerais))
+        && validOptionalTimestamp(resourceData.ultimaAtualizacao);
+    }
+
+    // Validação para itens do cronograma (tolerante a campos ausentes)
+    function validCronograma(item) {
+      // exigir ownerUid e acao
+      return item.keys().hasAll(['ownerUid','acao'])
+        && item.ownerUid is string
+        && isOwner(item.ownerUid)
+        && validString(item.acao, 1, 300)
+        && (!item.keys().hasAny(['horario']) || validOptionalString(item.horario, 10)) // 'HH:MM' por exemplo
+        && (!item.keys().hasAny(['tipo']) || validOptionalString(item.tipo, 30))
+        && (!item.keys().hasAny(['observacoes']) || validOptionalString(item.observacoes, 1000))
+        && (!item.keys().hasAny(['timestamp']) || validOptionalTimestamp(item.timestamp))
+        ;
+    }
+
+    // Validação para vídeos
+    function validVideo(item) {
+      let allowedStatus = ['pendente','edicao','aprovacao','revisao','aprovado'];
+      // exigir ownerUid e descricao
+      return item.keys().hasAll(['ownerUid','descricao'])
+        && item.ownerUid is string
+        && isOwner(item.ownerUid)
+        && validString(item.descricao, 5, 1000)
+        && (!item.keys().hasAny(['categoria']) || validOptionalString(item.categoria, 50))
+        && (!item.keys().hasAny(['tipo']) || validOptionalString(item.tipo, 50))
+        && (!item.keys().hasAny(['horario']) || validOptionalString(item.horario, 20))
+        && (!item.keys().hasAny(['duracao']) || validOptionalString(item.duracao, 20))
+        && (!item.keys().hasAny(['formato']) || validOptionalString(item.formato, 50))
+        && (!item.keys().hasAny(['status']) || (item.status is string && allowedStatus.hasAny([item.status])))
+        && (!item.keys().hasAny(['timestamp']) || validOptionalTimestamp(item.timestamp))
+        ;
+    }
+
+    // Regra principal para coleção de eventos
+    match /eventos/{eventoId} {
+      // Leitura pública permitida (ajuste se necessário)
+      allow read: if true;
+
+  // Criação: somente usuário autenticado e ownerUid deve corresponder (validações adicionais podem bloquear chamadas REST indiretas)
+  allow create: if isSignedIn()
+          && request.resource.data.ownerUid == request.auth.uid;
+
+      // Atualização e exclusão: apenas o owner registrado pode modificar e payload validado
+      allow update: if resource.data.ownerUid == request.auth.uid
+                      && validEventoUpdate(request.resource.data, resource.data);
+
+      allow delete: if resource.data.ownerUid == request.auth.uid;
+
+      // Subcoleções: cronograma e videos com validação por documento
+      match /cronograma/{itemId} {
+        allow read: if true;
+        allow create: if isSignedIn()
+                       && get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+                       && validCronograma(request.resource.data)
+                       && request.resource.data.ownerUid == request.auth.uid;
+        allow update: if get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+                       && resource.data.ownerUid == request.auth.uid
+                       && validCronograma(request.resource.data);
+        allow delete: if get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+                       && resource.data.ownerUid == request.auth.uid;
+      }
+
+      match /videos/{videoId} {
+        allow read: if true;
+        allow create: if isSignedIn()
+                       && get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+                       && validVideo(request.resource.data)
+                       && request.resource.data.ownerUid == request.auth.uid;
+        allow update: if get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+                       && resource.data.ownerUid == request.auth.uid
+                       && validVideo(request.resource.data);
+        allow delete: if get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+                       && resource.data.ownerUid == request.auth.uid;
+      }
+    }
+
+    // Padrão: negar tudo para outras coleções
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

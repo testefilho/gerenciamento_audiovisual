@@ -1,0 +1,20 @@
+{
+  "name": "evento-producao",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "http-server -c-1 . -p 5500",
+    "smoke-test": "node scripts/smoke-test.js",
+  "test:emulator": "firebase emulators:exec \"node tests/emulator-rules-test.js\"",
+  "test": "npm run test:emulator"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.0",
+    "firebase": "^12.1.0",
+    "firebase-admin": "^13.4.0",
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}
