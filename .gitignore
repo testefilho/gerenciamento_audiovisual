@@ -1,0 +1,6 @@
+node_modules/
+firebase-config.js
+emulator-data/
+.history/
+*.log
+/.firebase/
