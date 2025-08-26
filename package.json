@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "http-server -c-1 . -p 5500",
+  "serve": "http-server -c-1 . -p 5500",
     "smoke-test": "node scripts/smoke-test.js",
     "test:emulator": "npx firebase emulators:exec \"node tests/emulator-rules-test.js\"",
-    "test": "npm run test:emulator"
+  "test": "npm run test:emulator",
+  "start:local": "pwsh -NoProfile -File ./scripts/start-local.ps1"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.0",
