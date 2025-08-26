@@ -29,12 +29,38 @@ Aplicação web simples para gerenciar informações gerais, cronograma e vídeo
 
 1. No Console do Firebase, crie/abra o projeto.
 2. Habilite Firestore (modo bloqueado) e Authentication → Email/Password.
-3. Preencha irebase-config.js com o objeto irebaseConfig do seu projeto. Não comite esse arquivo.
+3. Copie `firebase-config.js.template` para `firebase-config.js` e preencha o objeto `firebaseConfig` com as credenciais do seu projeto. NÃO comite `firebase-config.js`.
 
-## Como rodar os testes do emulador
+## Como rodar localmente (visualizar a aplicação)
 
-1. Instale dependências: 
-pm ci
-2. Rode os testes do emulador: 
-pm run test:emulator (isso iniciará o Firestore Emulator e executará os testes configudados).
+1. Instale dependências:
+
+```powershell
+npm ci
+```
+
+2. Copie o template e preencha suas credenciais do Firebase:
+
+```powershell
+cp firebase-config.js.template firebase-config.js
+# edite firebase-config.js e cole seu objeto firebaseConfig
+```
+
+3. Inicie o servidor estático (a aplicação ficará disponível em http://127.0.0.1:5500):
+
+```powershell
+npm run serve
+```
+
+Se quiser usar os emuladores locais (opcional), rode:
+
+```powershell
+npx firebase init emulators   # aceita criar configuração local, se necessário
+npx firebase emulators:start --only firestore,auth
+```
+
+Obs: para a aplicação conectar automaticamente aos emuladores quando estiverem rodando, abra:
+
+http://127.0.0.1:5500?useEmulator=true
+
 
