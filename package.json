@@ -5,6 +5,7 @@
   "scripts": {
   "serve": "http-server -c-1 . -p 5500",
     "smoke-test": "node scripts/smoke-test.js",
+  "check:sensitive": "node scripts/check-sensitive-files.js",
     "test:emulator": "npx firebase emulators:exec \"node tests/emulator-rules-test.js\"",
   "test": "npm run test:emulator",
   "start:local": "pwsh -NoProfile -File ./scripts/start-local.ps1"
