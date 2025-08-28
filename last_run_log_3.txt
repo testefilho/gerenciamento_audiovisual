@@ -1,0 +1,256 @@
+emulator-tests	Set up job	﻿2025-08-26T06:34:43.4631731Z Current runner version: '2.328.0'
+emulator-tests	Set up job	2025-08-26T06:34:43.4656230Z ##[group]Runner Image Provisioner
+emulator-tests	Set up job	2025-08-26T06:34:43.4657398Z Hosted Compute Agent
+emulator-tests	Set up job	2025-08-26T06:34:43.4657929Z Version: 20250825.382
+emulator-tests	Set up job	2025-08-26T06:34:43.4658633Z Commit: 7109f2abf901479dac39397456e363ac0cca0730
+emulator-tests	Set up job	2025-08-26T06:34:43.4659293Z Build Date: 2025-08-25T22:55:50Z
+emulator-tests	Set up job	2025-08-26T06:34:43.4659861Z ##[endgroup]
+emulator-tests	Set up job	2025-08-26T06:34:43.4660455Z ##[group]Operating System
+emulator-tests	Set up job	2025-08-26T06:34:43.4661024Z Ubuntu
+emulator-tests	Set up job	2025-08-26T06:34:43.4661468Z 24.04.2
+emulator-tests	Set up job	2025-08-26T06:34:43.4661994Z LTS
+emulator-tests	Set up job	2025-08-26T06:34:43.4662418Z ##[endgroup]
+emulator-tests	Set up job	2025-08-26T06:34:43.4662911Z ##[group]Runner Image
+emulator-tests	Set up job	2025-08-26T06:34:43.4663519Z Image: ubuntu-24.04
+emulator-tests	Set up job	2025-08-26T06:34:43.4663973Z Version: 20250818.1.0
+emulator-tests	Set up job	2025-08-26T06:34:43.4664961Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250818.1/images/ubuntu/Ubuntu2404-Readme.md
+emulator-tests	Set up job	2025-08-26T06:34:43.4666298Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250818.1
+emulator-tests	Set up job	2025-08-26T06:34:43.4667726Z ##[endgroup]
+emulator-tests	Set up job	2025-08-26T06:34:43.4668892Z ##[group]GITHUB_TOKEN Permissions
+emulator-tests	Set up job	2025-08-26T06:34:43.4670717Z Contents: read
+emulator-tests	Set up job	2025-08-26T06:34:43.4671365Z Metadata: read
+emulator-tests	Set up job	2025-08-26T06:34:43.4671862Z Packages: read
+emulator-tests	Set up job	2025-08-26T06:34:43.4672383Z ##[endgroup]
+emulator-tests	Set up job	2025-08-26T06:34:43.4674426Z Secret source: Actions
+emulator-tests	Set up job	2025-08-26T06:34:43.4675287Z Prepare workflow directory
+emulator-tests	Set up job	2025-08-26T06:34:43.4999695Z Prepare all required actions
+emulator-tests	Set up job	2025-08-26T06:34:43.5042300Z Getting action download info
+emulator-tests	Set up job	2025-08-26T06:34:43.9962435Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+emulator-tests	Set up job	2025-08-26T06:34:44.0776839Z Download action repository 'actions/setup-java@v4' (SHA:c5195efecf7bdfc987ee8bae7a71cb8b11521c00)
+emulator-tests	Set up job	2025-08-26T06:34:45.0959308Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+emulator-tests	Set up job	2025-08-26T06:34:45.1872986Z Download action repository 'actions/cache@v4' (SHA:0400d5f644dc74513175e3cd8d07132dd4860809)
+emulator-tests	Set up job	2025-08-26T06:34:45.3834903Z Complete job name: emulator-tests
+emulator-tests	Run actions/checkout@v4	﻿2025-08-26T06:34:45.4540540Z ##[group]Run actions/checkout@v4
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4541438Z with:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4541918Z   repository: drrdanilosa/evento-producao
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4542689Z   token: ***
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4543124Z   ssh-strict: true
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4543556Z   ssh-user: git
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4543990Z   persist-credentials: true
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4544473Z   clean: true
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4544917Z   sparse-checkout-cone-mode: true
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4545473Z   fetch-depth: 1
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4545894Z   fetch-tags: false
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4546347Z   show-progress: true
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4546811Z   lfs: false
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4547580Z   submodules: false
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4548031Z   set-safe-directory: true
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.4548826Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5614548Z Syncing repository: drrdanilosa/evento-producao
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5616422Z ##[group]Getting Git version info
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5617601Z Working directory is '/home/runner/work/evento-producao/evento-producao'
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5618922Z [command]/usr/bin/git version
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5721258Z git version 2.51.0
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5762410Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5791659Z Temporarily overriding HOME='/home/runner/work/_temp/c4b8ac3b-e65b-4228-ae49-f396ad41126f' before making global git config changes
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5793465Z Adding repository directory to the temporary git global config as a safe directory
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5799604Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/evento-producao/evento-producao
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5838617Z Deleting the contents of '/home/runner/work/evento-producao/evento-producao'
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5842465Z ##[group]Initializing the repository
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5847318Z [command]/usr/bin/git init /home/runner/work/evento-producao/evento-producao
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5935802Z hint: Using 'master' as the name for the initial branch. This default branch name
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5937531Z hint: is subject to change. To configure the initial branch name to use in all
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5939375Z hint: of your new repositories, which will suppress this warning, call:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5940158Z hint:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5940941Z hint: 	git config --global init.defaultBranch <name>
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5942045Z hint:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5943076Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5944721Z hint: 'development'. The just-created branch can be renamed via this command:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5946076Z hint:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5946838Z hint: 	git branch -m <name>
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5947867Z hint:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5948894Z hint: Disable this message with "git config set advice.defaultBranchName false"
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5950818Z Initialized empty Git repository in /home/runner/work/evento-producao/evento-producao/.git/
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5953973Z [command]/usr/bin/git remote add origin https://github.com/drrdanilosa/evento-producao
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5997128Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.5998439Z ##[group]Disabling automatic garbage collection
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.6001796Z [command]/usr/bin/git config --local gc.auto 0
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.6030605Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.6031905Z ##[group]Setting up auth
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.6038018Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.6068169Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.6436110Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.6466517Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.6684404Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.6718441Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.6719497Z ##[group]Fetching the repository
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:45.6735451Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +a7ee94b7840e8b9d44426f27aebd1fe42b9363bc:refs/remotes/origin/main
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:47.3398354Z From https://github.com/drrdanilosa/evento-producao
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:47.3401321Z  * [new ref]         a7ee94b7840e8b9d44426f27aebd1fe42b9363bc -> origin/main
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:47.3430360Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:47.3431952Z ##[group]Determining the checkout info
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:47.3433615Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:47.3437614Z [command]/usr/bin/git sparse-checkout disable
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:47.3480110Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:47.3508994Z ##[group]Checking out the ref
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:47.3512916Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:48.2769674Z Switched to a new branch 'main'
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:48.2770919Z branch 'main' set up to track 'origin/main'.
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:48.2812520Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:48.2856142Z [command]/usr/bin/git log -1 --format=%H
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:34:48.2881867Z a7ee94b7840e8b9d44426f27aebd1fe42b9363bc
+emulator-tests	Set up Java (Adoptium Temurin 17)	﻿2025-08-26T06:34:48.3138448Z ##[group]Run actions/setup-java@v4
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.3138789Z with:
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.3138988Z   distribution: temurin
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.3139188Z   java-version: 17
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.3139366Z   java-package: jdk
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.3139561Z   check-latest: false
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.3139744Z   server-id: github
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.3139938Z   server-username: GITHUB_ACTOR
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.3140175Z   server-password: GITHUB_TOKEN
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.3140413Z   overwrite-settings: true
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.3140617Z   job-status: success
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.3140982Z   token: ***
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.3141407Z ##[endgroup]
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5132223Z ##[group]Installed distributions
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5185511Z Resolved Java 17.0.16+8 from tool-cache
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5186089Z Setting Java 17.0.16+8 as the default
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5199474Z Creating toolchains.xml for JDK version 17 from temurin
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5275799Z Writing to /home/runner/.m2/toolchains.xml
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5276861Z 
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5277305Z Java configuration:
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5277674Z   Distribution: temurin
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5278038Z   Version: 17.0.16+8
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5281500Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5282397Z 
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5283150Z ##[endgroup]
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5301135Z Creating settings.xml with server-id: github
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:34:48.5301720Z Writing to /home/runner/.m2/settings.xml
+emulator-tests	Set up Node.js	﻿2025-08-26T06:34:48.5502528Z ##[group]Run actions/setup-node@v4
+emulator-tests	Set up Node.js	2025-08-26T06:34:48.5502806Z with:
+emulator-tests	Set up Node.js	2025-08-26T06:34:48.5502977Z   node-version: 20
+emulator-tests	Set up Node.js	2025-08-26T06:34:48.5503169Z   always-auth: false
+emulator-tests	Set up Node.js	2025-08-26T06:34:48.5503362Z   check-latest: false
+emulator-tests	Set up Node.js	2025-08-26T06:34:48.5503679Z   token: ***
+emulator-tests	Set up Node.js	2025-08-26T06:34:48.5503844Z env:
+emulator-tests	Set up Node.js	2025-08-26T06:34:48.5504117Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Set up Node.js	2025-08-26T06:34:48.5504558Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Set up Node.js	2025-08-26T06:34:48.5504899Z ##[endgroup]
+emulator-tests	Set up Node.js	2025-08-26T06:34:48.7245276Z Found in cache @ /opt/hostedtoolcache/node/20.19.4/x64
+emulator-tests	Set up Node.js	2025-08-26T06:34:48.7251414Z ##[group]Environment details
+emulator-tests	Set up Node.js	2025-08-26T06:34:49.0619294Z node: v20.19.4
+emulator-tests	Set up Node.js	2025-08-26T06:34:49.0620073Z npm: 10.8.2
+emulator-tests	Set up Node.js	2025-08-26T06:34:49.0620785Z yarn: 1.22.22
+emulator-tests	Set up Node.js	2025-08-26T06:34:49.0621549Z ##[endgroup]
+emulator-tests	Cache node modules	﻿2025-08-26T06:34:50.2741439Z ##[group]Run actions/cache@v4
+emulator-tests	Cache node modules	2025-08-26T06:34:50.2741698Z with:
+emulator-tests	Cache node modules	2025-08-26T06:34:50.2741860Z   path: ~/.npm
+emulator-tests	Cache node modules	2025-08-26T06:34:50.2742193Z   key: Linux-node-7a87e9e7a6115aca8ccb78190532ad233f849a57df997feeb1b99cc1ef240ad4
+emulator-tests	Cache node modules	2025-08-26T06:34:50.2742589Z   restore-keys: Linux-node-
+emulator-tests	Cache node modules	
+emulator-tests	Cache node modules	2025-08-26T06:34:50.2742837Z   enableCrossOsArchive: false
+emulator-tests	Cache node modules	2025-08-26T06:34:50.2743057Z   fail-on-cache-miss: false
+emulator-tests	Cache node modules	2025-08-26T06:34:50.2743265Z   lookup-only: false
+emulator-tests	Cache node modules	2025-08-26T06:34:50.2743444Z   save-always: false
+emulator-tests	Cache node modules	2025-08-26T06:34:50.2743617Z env:
+emulator-tests	Cache node modules	2025-08-26T06:34:50.2743880Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Cache node modules	2025-08-26T06:34:50.2744313Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Cache node modules	2025-08-26T06:34:50.2744646Z ##[endgroup]
+emulator-tests	Cache node modules	2025-08-26T06:34:50.7171987Z Cache hit for: Linux-node-7a87e9e7a6115aca8ccb78190532ad233f849a57df997feeb1b99cc1ef240ad4
+emulator-tests	Cache node modules	2025-08-26T06:34:52.0469059Z Received 4194304 of 63111006 (6.6%), 4.0 MBs/sec
+emulator-tests	Cache node modules	2025-08-26T06:34:52.7221961Z Received 63111006 of 63111006 (100.0%), 35.9 MBs/sec
+emulator-tests	Cache node modules	2025-08-26T06:34:52.7223666Z Cache Size: ~60 MB (63111006 B)
+emulator-tests	Cache node modules	2025-08-26T06:34:52.7254136Z [command]/usr/bin/tar -xf /home/runner/work/_temp/b8c62e6e-0f1b-41f2-b876-69869d49ea2b/cache.tzst -P -C /home/runner/work/evento-producao/evento-producao --use-compress-program unzstd
+emulator-tests	Cache node modules	2025-08-26T06:34:52.9443351Z Cache restored successfully
+emulator-tests	Cache node modules	2025-08-26T06:34:52.9647187Z Cache restored from key: Linux-node-7a87e9e7a6115aca8ccb78190532ad233f849a57df997feeb1b99cc1ef240ad4
+emulator-tests	Cache Firestore emulator	﻿2025-08-26T06:34:54.1337913Z ##[group]Run actions/cache@v4
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.1338365Z with:
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.1338687Z   path: ~/.cache/firebase/emulators
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.1339516Z   key: Linux-firebase-emulator-7a87e9e7a6115aca8ccb78190532ad233f849a57df997feeb1b99cc1ef240ad4
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.1340398Z   restore-keys: Linux-firebase-emulator-
+emulator-tests	Cache Firestore emulator	
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.1340894Z   enableCrossOsArchive: false
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.1341314Z   fail-on-cache-miss: false
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.1341702Z   lookup-only: false
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.1342040Z   save-always: false
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.1342364Z env:
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.1342851Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.1343672Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.1344613Z ##[endgroup]
+emulator-tests	Cache Firestore emulator	2025-08-26T06:34:54.5441602Z Cache not found for input keys: Linux-firebase-emulator-7a87e9e7a6115aca8ccb78190532ad233f849a57df997feeb1b99cc1ef240ad4, Linux-firebase-emulator-
+emulator-tests	Install dependencies	﻿2025-08-26T06:34:54.5527765Z ##[group]Run npm ci
+emulator-tests	Install dependencies	2025-08-26T06:34:54.5528055Z [36;1mnpm ci[0m
+emulator-tests	Install dependencies	2025-08-26T06:34:54.5603644Z shell: /usr/bin/bash -e {0}
+emulator-tests	Install dependencies	2025-08-26T06:34:54.5603888Z env:
+emulator-tests	Install dependencies	2025-08-26T06:34:54.5604170Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Install dependencies	2025-08-26T06:34:54.5604639Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Install dependencies	2025-08-26T06:34:54.5604983Z ##[endgroup]
+emulator-tests	Install dependencies	2025-08-26T06:34:58.3973065Z npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+emulator-tests	Install dependencies	2025-08-26T06:35:02.7980062Z 
+emulator-tests	Install dependencies	2025-08-26T06:35:02.7981016Z added 799 packages, and audited 800 packages in 8s
+emulator-tests	Install dependencies	2025-08-26T06:35:02.7981547Z 
+emulator-tests	Install dependencies	2025-08-26T06:35:02.7981788Z 88 packages are looking for funding
+emulator-tests	Install dependencies	2025-08-26T06:35:02.7982188Z   run `npm fund` for details
+emulator-tests	Install dependencies	2025-08-26T06:35:02.7998718Z 
+emulator-tests	Install dependencies	2025-08-26T06:35:02.7999021Z found 0 vulnerabilities
+emulator-tests	Run emulator tests	﻿2025-08-26T06:35:02.8473829Z ##[group]Run npm run test:emulator
+emulator-tests	Run emulator tests	2025-08-26T06:35:02.8474196Z [36;1mnpm run test:emulator[0m
+emulator-tests	Run emulator tests	2025-08-26T06:35:02.8516728Z shell: /usr/bin/bash -e {0}
+emulator-tests	Run emulator tests	2025-08-26T06:35:02.8517129Z env:
+emulator-tests	Run emulator tests	2025-08-26T06:35:02.8517420Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Run emulator tests	2025-08-26T06:35:02.8517862Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Run emulator tests	2025-08-26T06:35:02.8518231Z   FIREBASE_PROJECT: evento-producao
+emulator-tests	Run emulator tests	2025-08-26T06:35:02.8518481Z ##[endgroup]
+emulator-tests	Run emulator tests	2025-08-26T06:35:02.9606504Z 
+emulator-tests	Run emulator tests	2025-08-26T06:35:02.9607674Z > evento-producao@0.1.0 test:emulator
+emulator-tests	Run emulator tests	2025-08-26T06:35:02.9608602Z > npx firebase emulators:exec "node tests/emulator-rules-test.js"
+emulator-tests	Run emulator tests	2025-08-26T06:35:02.9609144Z 
+emulator-tests	Run emulator tests	2025-08-26T06:35:04.7045128Z [33m[1m⚠  emulators:[22m[39m You are not currently authenticated so some features may not work correctly. Please run [1mfirebase login[22m to authenticate the CLI.
+emulator-tests	Run emulator tests	2025-08-26T06:35:04.8737551Z [36m[1mi  emulators:[22m[39m Starting emulators: firestore
+emulator-tests	Run emulator tests	2025-08-26T06:35:04.8850419Z [33m[1m⚠ [22m[39m It appears you are running in a CI environment. You can avoid downloading the Firestore Emulator repeatedly by caching the /home/runner/.cache/firebase/emulators directory.
+emulator-tests	Run emulator tests	2025-08-26T06:35:04.8852234Z [36m[1mi  firestore:[22m[39m downloading cloud-firestore-emulator-v1.19.8.jar...
+emulator-tests	Run emulator tests	2025-08-26T06:35:05.4811890Z 
+emulator-tests	Run emulator tests	2025-08-26T06:35:05.6801200Z [36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+emulator-tests	Run emulator tests	2025-08-26T06:35:07.4905426Z [32m[1m✔  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+emulator-tests	Run emulator tests	2025-08-26T06:35:07.4953891Z [36m[1mi [22m[39m Running script: [1mnode tests/emulator-rules-test.js[22m
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.0787678Z Tentando criação autenticada (alice) ...
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.5670628Z OK: criação autenticada permitida
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.5676538Z Tentando criação sem autenticação ...
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.6479065Z [2025-08-26T06:35:09.647Z]  @firebase/firestore: Firestore (12.1.0): GrpcConnection RPC 'Write' stream 0x8df2952d error. Code: 7 Message: 7 PERMISSION_DENIED: 
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.6481299Z false for 'create' @ L89, false for 'create' @ L128, evaluation error at L93:24 for 'update' @ L93, false for 'update' @ L128, false for 'create' @ L89, false for 'create' @ L128
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.6494251Z OK: criação sem autenticação negada
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.6496644Z Tentando criar cronograma como alice...
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.6882885Z OK: cronograma criado por owner
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.6889479Z Tentando criar cronograma como bob (deve falhar)...
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.7379865Z [2025-08-26T06:35:09.737Z]  @firebase/firestore: Firestore (12.1.0): GrpcConnection RPC 'Write' stream 0x8df2952e error. Code: 7 Message: 7 PERMISSION_DENIED: 
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.7382639Z evaluation error at L101:26 for 'create' @ L101, false for 'create' @ L128, false for 'create' @ L101, false for 'create' @ L128
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.7384333Z OK: criação por outro usuário negada
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.7384883Z Todos os testes do emulator passaram.
+emulator-tests	Run emulator tests	2025-08-26T06:35:09.7540654Z [32m[1m✔ [22m[39m Script exited successfully (code 0)
+emulator-tests	Run emulator tests	2025-08-26T06:35:10.2550542Z [36m[1mi  emulators:[22m[39m Shutting down emulators.
+emulator-tests	Run emulator tests	2025-08-26T06:35:10.2555403Z [36m[1mi  firestore:[22m[39m Stopping Firestore Emulator
+emulator-tests	Run emulator tests	2025-08-26T06:35:10.5885538Z [36m[1mi  hub:[22m[39m Stopping emulator hub
+emulator-tests	Run emulator tests	2025-08-26T06:35:10.5892145Z [36m[1mi  logging:[22m[39m Stopping Logging Emulator
+emulator-tests	Post Cache Firestore emulator	﻿2025-08-26T06:35:12.8313385Z Post job cleanup.
+emulator-tests	Post Cache Firestore emulator	2025-08-26T06:35:12.9733823Z [command]/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/evento-producao/evento-producao --files-from manifest.txt --use-compress-program zstdmt
+emulator-tests	Post Cache Firestore emulator	2025-08-26T06:35:14.4582301Z Sent 7864320 of 52597383 (15.0%), 7.5 MBs/sec
+emulator-tests	Post Cache Firestore emulator	2025-08-26T06:35:15.4585980Z Sent 50987008 of 52597383 (96.9%), 24.3 MBs/sec
+emulator-tests	Post Cache Firestore emulator	2025-08-26T06:35:15.7230303Z Sent 52597383 of 52597383 (100.0%), 22.1 MBs/sec
+emulator-tests	Post Cache Firestore emulator	2025-08-26T06:35:15.8409028Z Cache saved with key: Linux-firebase-emulator-7a87e9e7a6115aca8ccb78190532ad233f849a57df997feeb1b99cc1ef240ad4
+emulator-tests	Post Cache node modules	﻿2025-08-26T06:35:17.8908718Z Post job cleanup.
+emulator-tests	Post Cache node modules	2025-08-26T06:35:18.0179958Z Cache hit occurred on the primary key Linux-node-7a87e9e7a6115aca8ccb78190532ad233f849a57df997feeb1b99cc1ef240ad4, not saving cache.
+emulator-tests	Post Set up Node.js	﻿2025-08-26T06:35:18.0266224Z Post job cleanup.
+emulator-tests	Post Set up Java (Adoptium Temurin 17)	﻿2025-08-26T06:35:18.1886114Z Post job cleanup.
+emulator-tests	Post Run actions/checkout@v4	﻿2025-08-26T06:35:18.3588808Z Post job cleanup.
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:35:18.4519197Z [command]/usr/bin/git version
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:35:18.4554973Z git version 2.51.0
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:35:18.4596092Z Temporarily overriding HOME='/home/runner/work/_temp/498af180-36cd-4d3a-8996-680794df9c4d' before making global git config changes
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:35:18.4597679Z Adding repository directory to the temporary git global config as a safe directory
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:35:18.4601642Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/evento-producao/evento-producao
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:35:18.4637073Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:35:18.4669423Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:35:18.4917409Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:35:18.4937416Z http.https://github.com/.extraheader
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:35:18.4949537Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:35:18.4979098Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+emulator-tests	Complete job	﻿2025-08-26T06:35:18.5342055Z Cleaning up orphan processes

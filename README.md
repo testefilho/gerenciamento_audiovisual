@@ -13,12 +13,14 @@ Aplicação web simples para gerenciar informações gerais, cronograma e vídeo
 
 ## Arquivos principais
 
-- index.html — página principal e carregamento dos módulos
-- styles/style.css — regras de estilo
-- scripts/script.js — lógica principal (Firestore, UI, Auth, validações)
-- scripts/smoke-test.js — script de validação via REST (cria usuário temporário)
-- irestore.rules — regras de segurança (ver irestore.rules)
-- irebase-config.js — arquivo de configuração do Firebase (NÃO comitar)
+- `index.html` — página principal e carregamento dos módulos
+- `styles/style.css` — regras de estilo
+- `scripts/script.js` — lógica principal (Firestore, UI, Auth, validações)
+- `scripts/smoke-test.js` — script de validação via REST (cria usuário temporário)
+- `firestore.rules` — regras de segurança (ver `firestore.rules`)
+- `firebase-config.js` — arquivo de configuração do Firebase (NÃO comitar)
+
+Nota: se `firebase-config.js` foi acidentalmente comitado, remova-o do histórico e do repositório antes de compartilhar este projeto publicamente. Os arquivos de log `firebase-debug.log` e `firestore-debug.log` também são locais e não devem ser versionados. Adicione `firebase-config.js` e arquivos de log ao seu `.gitignore`.
 
 ## Pré-requisitos
 

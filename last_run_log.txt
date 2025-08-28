@@ -1,0 +1,291 @@
+emulator-tests	Set up job	﻿2025-08-26T06:24:13.7755847Z Current runner version: '2.328.0'
+emulator-tests	Set up job	2025-08-26T06:24:13.7794600Z ##[group]Runner Image Provisioner
+emulator-tests	Set up job	2025-08-26T06:24:13.7795884Z Hosted Compute Agent
+emulator-tests	Set up job	2025-08-26T06:24:13.7797076Z Version: 20250818.377
+emulator-tests	Set up job	2025-08-26T06:24:13.7798198Z Commit: 3c593e9f75fe0b87e893bca80d6e12ba089c61fc
+emulator-tests	Set up job	2025-08-26T06:24:13.7799441Z Build Date: 2025-08-18T14:52:18Z
+emulator-tests	Set up job	2025-08-26T06:24:13.7800468Z ##[endgroup]
+emulator-tests	Set up job	2025-08-26T06:24:13.7801494Z ##[group]Operating System
+emulator-tests	Set up job	2025-08-26T06:24:13.7802475Z Ubuntu
+emulator-tests	Set up job	2025-08-26T06:24:13.7803241Z 24.04.2
+emulator-tests	Set up job	2025-08-26T06:24:13.7804032Z LTS
+emulator-tests	Set up job	2025-08-26T06:24:13.7804822Z ##[endgroup]
+emulator-tests	Set up job	2025-08-26T06:24:13.7805725Z ##[group]Runner Image
+emulator-tests	Set up job	2025-08-26T06:24:13.7807336Z Image: ubuntu-24.04
+emulator-tests	Set up job	2025-08-26T06:24:13.7808238Z Version: 20250818.1.0
+emulator-tests	Set up job	2025-08-26T06:24:13.7810188Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20250818.1/images/ubuntu/Ubuntu2404-Readme.md
+emulator-tests	Set up job	2025-08-26T06:24:13.7812717Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20250818.1
+emulator-tests	Set up job	2025-08-26T06:24:13.7814794Z ##[endgroup]
+emulator-tests	Set up job	2025-08-26T06:24:13.7816889Z ##[group]GITHUB_TOKEN Permissions
+emulator-tests	Set up job	2025-08-26T06:24:13.7819587Z Contents: read
+emulator-tests	Set up job	2025-08-26T06:24:13.7820410Z Metadata: read
+emulator-tests	Set up job	2025-08-26T06:24:13.7821231Z Packages: read
+emulator-tests	Set up job	2025-08-26T06:24:13.7821988Z ##[endgroup]
+emulator-tests	Set up job	2025-08-26T06:24:13.7825343Z Secret source: Actions
+emulator-tests	Set up job	2025-08-26T06:24:13.7828556Z Prepare workflow directory
+emulator-tests	Set up job	2025-08-26T06:24:13.8303117Z Prepare all required actions
+emulator-tests	Set up job	2025-08-26T06:24:13.8360946Z Getting action download info
+emulator-tests	Set up job	2025-08-26T06:24:14.0587612Z Download action repository 'actions/checkout@v4' (SHA:08eba0b27e820071cde6df949e0beb9ba4906955)
+emulator-tests	Set up job	2025-08-26T06:24:14.1290759Z Download action repository 'actions/setup-java@v4' (SHA:c5195efecf7bdfc987ee8bae7a71cb8b11521c00)
+emulator-tests	Set up job	2025-08-26T06:24:14.4213766Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+emulator-tests	Set up job	2025-08-26T06:24:14.6074720Z Complete job name: emulator-tests
+emulator-tests	Run actions/checkout@v4	﻿2025-08-26T06:24:14.6829007Z ##[group]Run actions/checkout@v4
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6830180Z with:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6830881Z   repository: drrdanilosa/evento-producao
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6832056Z   token: ***
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6832652Z   ssh-strict: true
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6833282Z   ssh-user: git
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6833925Z   persist-credentials: true
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6834660Z   clean: true
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6835311Z   sparse-checkout-cone-mode: true
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6836115Z   fetch-depth: 1
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6836920Z   fetch-tags: false
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6837577Z   show-progress: true
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6838231Z   lfs: false
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6838830Z   submodules: false
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6839505Z   set-safe-directory: true
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.6840479Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.7953759Z Syncing repository: drrdanilosa/evento-producao
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.7957743Z ##[group]Getting Git version info
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.7959946Z Working directory is '/home/runner/work/evento-producao/evento-producao'
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.7962473Z [command]/usr/bin/git version
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.7986905Z git version 2.51.0
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8014389Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8032198Z Temporarily overriding HOME='/home/runner/work/_temp/d1a3a6fa-59c6-4e34-8d35-6008df492dcc' before making global git config changes
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8036423Z Adding repository directory to the temporary git global config as a safe directory
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8048150Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/evento-producao/evento-producao
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8087875Z Deleting the contents of '/home/runner/work/evento-producao/evento-producao'
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8092354Z ##[group]Initializing the repository
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8097232Z [command]/usr/bin/git init /home/runner/work/evento-producao/evento-producao
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8150410Z hint: Using 'master' as the name for the initial branch. This default branch name
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8152384Z hint: is subject to change. To configure the initial branch name to use in all
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8155029Z hint: of your new repositories, which will suppress this warning, call:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8157420Z hint:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8158405Z hint: 	git config --global init.defaultBranch <name>
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8159753Z hint:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8160862Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8162581Z hint: 'development'. The just-created branch can be renamed via this command:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8163975Z hint:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8164906Z hint: 	git branch -m <name>
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8165644Z hint:
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8166883Z hint: Disable this message with "git config set advice.defaultBranchName false"
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8168811Z Initialized empty Git repository in /home/runner/work/evento-producao/evento-producao/.git/
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8171687Z [command]/usr/bin/git remote add origin https://github.com/drrdanilosa/evento-producao
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8198326Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8199532Z ##[group]Disabling automatic garbage collection
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8201635Z [command]/usr/bin/git config --local gc.auto 0
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8233401Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8234489Z ##[group]Setting up auth
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8240316Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8272027Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8532845Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8563724Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8801964Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8837506Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8839532Z ##[group]Fetching the repository
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:14.8856631Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +313571a8bc910556a248b187c32ce43b51053c8e:refs/remotes/origin/main
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:15.9972379Z From https://github.com/drrdanilosa/evento-producao
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:15.9974517Z  * [new ref]         313571a8bc910556a248b187c32ce43b51053c8e -> origin/main
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:16.0004053Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:16.0004865Z ##[group]Determining the checkout info
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:16.0006148Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:16.0010981Z [command]/usr/bin/git sparse-checkout disable
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:16.0047814Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:16.0074706Z ##[group]Checking out the ref
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:16.0077849Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:16.9287888Z Switched to a new branch 'main'
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:16.9288698Z branch 'main' set up to track 'origin/main'.
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:16.9328848Z ##[endgroup]
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:16.9373839Z [command]/usr/bin/git log -1 --format=%H
+emulator-tests	Run actions/checkout@v4	2025-08-26T06:24:16.9398662Z 313571a8bc910556a248b187c32ce43b51053c8e
+emulator-tests	Set up Java (Adoptium Temurin 17)	﻿2025-08-26T06:24:16.9643547Z ##[group]Run actions/setup-java@v4
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:16.9643908Z with:
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:16.9644097Z   distribution: temurin
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:16.9644293Z   java-version: 17
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:16.9644480Z   java-package: jdk
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:16.9644678Z   check-latest: false
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:16.9644870Z   server-id: github
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:16.9645061Z   server-username: GITHUB_ACTOR
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:16.9645288Z   server-password: GITHUB_TOKEN
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:16.9645519Z   overwrite-settings: true
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:16.9645727Z   job-status: success
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:16.9646042Z   token: ***
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:16.9646216Z ##[endgroup]
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.1583378Z ##[group]Installed distributions
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.1918492Z Resolved Java 17.0.16+8 from tool-cache
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.1920136Z Setting Java 17.0.16+8 as the default
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.1932856Z Creating toolchains.xml for JDK version 17 from temurin
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.2010338Z Writing to /home/runner/.m2/toolchains.xml
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.2010730Z 
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.2010961Z Java configuration:
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.2011310Z   Distribution: temurin
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.2011738Z   Version: 17.0.16+8
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.2013018Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.2013531Z 
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.2014575Z ##[endgroup]
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.2031585Z Creating settings.xml with server-id: github
+emulator-tests	Set up Java (Adoptium Temurin 17)	2025-08-26T06:24:17.2036246Z Writing to /home/runner/.m2/settings.xml
+emulator-tests	Set up Node.js	﻿2025-08-26T06:24:17.2167268Z ##[group]Run actions/setup-node@v4
+emulator-tests	Set up Node.js	2025-08-26T06:24:17.2167546Z with:
+emulator-tests	Set up Node.js	2025-08-26T06:24:17.2167723Z   node-version: 18
+emulator-tests	Set up Node.js	2025-08-26T06:24:17.2167918Z   always-auth: false
+emulator-tests	Set up Node.js	2025-08-26T06:24:17.2168117Z   check-latest: false
+emulator-tests	Set up Node.js	2025-08-26T06:24:17.2168429Z   token: ***
+emulator-tests	Set up Node.js	2025-08-26T06:24:17.2168613Z env:
+emulator-tests	Set up Node.js	2025-08-26T06:24:17.2168880Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Set up Node.js	2025-08-26T06:24:17.2169343Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Set up Node.js	2025-08-26T06:24:17.2169684Z ##[endgroup]
+emulator-tests	Set up Node.js	2025-08-26T06:24:17.3898513Z Found in cache @ /opt/hostedtoolcache/node/18.20.8/x64
+emulator-tests	Set up Node.js	2025-08-26T06:24:17.3904654Z ##[group]Environment details
+emulator-tests	Set up Node.js	2025-08-26T06:24:19.1787150Z node: v18.20.8
+emulator-tests	Set up Node.js	2025-08-26T06:24:19.1787505Z npm: 10.8.2
+emulator-tests	Set up Node.js	2025-08-26T06:24:19.1787746Z yarn: 1.22.22
+emulator-tests	Set up Node.js	2025-08-26T06:24:19.1788398Z ##[endgroup]
+emulator-tests	Install dependencies	﻿2025-08-26T06:24:19.1929941Z ##[group]Run npm ci
+emulator-tests	Install dependencies	2025-08-26T06:24:19.1930213Z [36;1mnpm ci[0m
+emulator-tests	Install dependencies	2025-08-26T06:24:19.2001179Z shell: /usr/bin/bash -e {0}
+emulator-tests	Install dependencies	2025-08-26T06:24:19.2001431Z env:
+emulator-tests	Install dependencies	2025-08-26T06:24:19.2001721Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Install dependencies	2025-08-26T06:24:19.2002169Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Install dependencies	2025-08-26T06:24:19.2002532Z ##[endgroup]
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5946993Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5947947Z npm warn EBADENGINE   package: '@firebase/ai@2.1.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5948677Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5949542Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5950187Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5950727Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5951414Z npm warn EBADENGINE   package: '@firebase/app@0.14.1',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5952142Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5953174Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5953803Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5954334Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5955070Z npm warn EBADENGINE   package: '@firebase/app-check@0.11.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5955801Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5956905Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5957572Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5958074Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5958851Z npm warn EBADENGINE   package: '@firebase/app-check-compat@0.4.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5959631Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5960428Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5961058Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5961661Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5962424Z npm warn EBADENGINE   package: '@firebase/app-compat@0.5.1',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5963214Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5964012Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5964588Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5965065Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5966045Z npm warn EBADENGINE   package: '@firebase/auth@1.11.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5966970Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5967790Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5968415Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5968957Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5969759Z npm warn EBADENGINE   package: '@firebase/auth-compat@0.6.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5970524Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5971308Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5971967Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5972476Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5973215Z npm warn EBADENGINE   package: '@firebase/component@0.7.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5973976Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5974789Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5975456Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5975980Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5976899Z npm warn EBADENGINE   package: '@firebase/database@1.1.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5977648Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5978444Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5979105Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5979628Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5980387Z npm warn EBADENGINE   package: '@firebase/database-compat@2.1.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5981631Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5982404Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5983047Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5983565Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5984296Z npm warn EBADENGINE   package: '@firebase/firestore@4.9.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5985067Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5985870Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5986682Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5987239Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5988022Z npm warn EBADENGINE   package: '@firebase/firestore-compat@0.4.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5988832Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5989641Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5990308Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5990809Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5991557Z npm warn EBADENGINE   package: '@firebase/functions@0.13.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5992310Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5993097Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5993715Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5994248Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5995124Z npm warn EBADENGINE   package: '@firebase/functions-compat@0.4.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5995920Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5996923Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5997543Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5998049Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5998753Z npm warn EBADENGINE   package: '@firebase/logger@0.5.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.5999463Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6000246Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6000867Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6001353Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6002131Z npm warn EBADENGINE   package: '@firebase/rules-unit-testing@5.0.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6002915Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6004025Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6004640Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6005162Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6005869Z npm warn EBADENGINE   package: '@firebase/storage@0.14.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6006872Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6007684Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6008290Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6008779Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6009514Z npm warn EBADENGINE   package: '@firebase/storage-compat@0.4.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6010388Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6011173Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6011784Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6012275Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6012936Z npm warn EBADENGINE   package: '@firebase/util@1.13.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6013659Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6014448Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6015045Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6024842Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6025652Z npm warn EBADENGINE   package: 'eventsource-parser@3.0.5',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6026412Z npm warn EBADENGINE   required: { node: '>=20.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6027503Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6028135Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6031036Z npm warn EBADENGINE Unsupported engine {
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6031787Z npm warn EBADENGINE   package: 'firebase-tools@14.14.0',
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6032605Z npm warn EBADENGINE   required: { node: '>=20.0.0 || >=22.0.0' },
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6033477Z npm warn EBADENGINE   current: { node: 'v18.20.8', npm: '10.8.2' }
+emulator-tests	Install dependencies	2025-08-26T06:24:21.6034099Z npm warn EBADENGINE }
+emulator-tests	Install dependencies	2025-08-26T06:24:25.2572063Z npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+emulator-tests	Install dependencies	2025-08-26T06:25:13.7268896Z 
+emulator-tests	Install dependencies	2025-08-26T06:25:13.7269951Z added 799 packages, and audited 800 packages in 54s
+emulator-tests	Install dependencies	2025-08-26T06:25:13.7270379Z 
+emulator-tests	Install dependencies	2025-08-26T06:25:13.7270633Z 88 packages are looking for funding
+emulator-tests	Install dependencies	2025-08-26T06:25:13.7271099Z   run `npm fund` for details
+emulator-tests	Install dependencies	2025-08-26T06:25:13.7283149Z 
+emulator-tests	Install dependencies	2025-08-26T06:25:13.7283455Z found 0 vulnerabilities
+emulator-tests	Run emulator tests	﻿2025-08-26T06:25:13.7568445Z ##[group]Run npm run test:emulator
+emulator-tests	Run emulator tests	2025-08-26T06:25:13.7568885Z [36;1mnpm run test:emulator[0m
+emulator-tests	Run emulator tests	2025-08-26T06:25:13.7609916Z shell: /usr/bin/bash -e {0}
+emulator-tests	Run emulator tests	2025-08-26T06:25:13.7610141Z env:
+emulator-tests	Run emulator tests	2025-08-26T06:25:13.7610426Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Run emulator tests	2025-08-26T06:25:13.7610867Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.16-8/x64
+emulator-tests	Run emulator tests	2025-08-26T06:25:13.7611221Z   FIREBASE_PROJECT: evento-producao
+emulator-tests	Run emulator tests	2025-08-26T06:25:13.7611449Z ##[endgroup]
+emulator-tests	Run emulator tests	2025-08-26T06:25:13.8844871Z 
+emulator-tests	Run emulator tests	2025-08-26T06:25:13.8845456Z > evento-producao@0.1.0 test:emulator
+emulator-tests	Run emulator tests	2025-08-26T06:25:13.8846024Z > npx firebase emulators:exec "node tests/emulator-rules-test.js"
+emulator-tests	Run emulator tests	2025-08-26T06:25:13.8846292Z 
+emulator-tests	Run emulator tests	2025-08-26T06:25:14.5691003Z Firebase CLI v14.14.0 is incompatible with Node.js v18.20.8 Please upgrade Node.js to version >=20.0.0 || >=22.0.0
+emulator-tests	Run emulator tests	2025-08-26T06:25:14.5934414Z ##[error]Process completed with exit code 1.
+emulator-tests	Post Set up Java (Adoptium Temurin 17)	﻿2025-08-26T06:25:14.6008242Z Post job cleanup.
+emulator-tests	Post Run actions/checkout@v4	﻿2025-08-26T06:25:14.7719777Z Post job cleanup.
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:25:14.8650390Z [command]/usr/bin/git version
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:25:14.8685793Z git version 2.51.0
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:25:14.8730469Z Temporarily overriding HOME='/home/runner/work/_temp/97fa56ec-92bf-4634-8e5e-8d1987d09d5f' before making global git config changes
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:25:14.8731937Z Adding repository directory to the temporary git global config as a safe directory
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:25:14.8737057Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/evento-producao/evento-producao
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:25:14.8772370Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:25:14.8804436Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:25:14.9057495Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:25:14.9081125Z http.https://github.com/.extraheader
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:25:14.9094317Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+emulator-tests	Post Run actions/checkout@v4	2025-08-26T06:25:14.9127382Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+emulator-tests	Complete job	﻿2025-08-26T06:25:14.9481294Z Cleaning up orphan processes

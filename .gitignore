@@ -1,5 +1,13 @@
 node_modules/
 firebase-config.js
+firebase-debug.log
+firestore-debug.log
+.firebase/
+.cache/
+.env
+/*.local
+node_modules/
+firebase-config.js
 emulator-data/
 .history/
 *.log

@@ -1,12 +1,25 @@
 /* Variáveis CSS */
 :root {
-    --cor-primaria: #667eea;
-    --cor-secundaria: #764ba2;
-    --cor-texto: #333;
-    --cor-texto-claro: #fff;
-    --cor-fundo: #f4f4f4;
-    --cor-fundo-card: #fff;
-    --cor-borda: #ddd;
+    /* Dracula theme variables */
+    --bg: #282a36;
+    --current-line: #44475a;
+    --selection: #44475a;
+    --foreground: #f8f8f2;
+    --comment: #6272a4;
+    --cyan: #8be9fd;
+    --green: #50fa7b;
+    --orange: #ffb86c;
+    --pink: #ff79c6;
+    --purple: #bd93f9;
+    --red: #ff5555;
+
+    --cor-primaria: var(--purple);
+    --cor-secundaria: var(--pink);
+    --cor-texto: var(--foreground);
+    --cor-texto-claro: var(--foreground);
+    --cor-fundo: var(--bg);
+    --cor-fundo-card: var(--current-line);
+    --cor-borda: rgba(255,255,255,0.06);
     --cor-sucesso: #4caf50;
     --cor-erro: #f44336;
     --cor-aviso: #ff9800;
@@ -34,7 +47,7 @@ body {
 }
 
 header {
-    background: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-secundaria) 100%);
+    background: linear-gradient(135deg, rgba(98,39,174,0.95) 0%, rgba(187,66,140,0.95) 100%);
     color: var(--cor-texto-claro);
     padding: var(--espacamento-md);
     text-align: center;
@@ -50,7 +63,7 @@ header {
 }
 
 .logo-container img {
-    height: 60px;
+    height: 48px;
     margin: 0 var(--espacamento-md);
 }
 
@@ -102,7 +115,7 @@ header {
 .auth-form .auth-btn { font-size: 0.8rem; padding: 0.25rem 0.5rem; }
 
 nav {
-    background: var(--cor-texto);
+    background: transparent;
     color: var(--cor-texto-claro);
     position: sticky;
     top: 0;
@@ -139,14 +152,15 @@ nav a:hover {
     margin: 0 auto;
     background: var(--cor-fundo-card);
     margin: var(--espacamento-md) auto;
-    border-radius: var(--border-radius);
-    box-shadow: var(--sombra);
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+    border: 1px solid var(--cor-borda);
 }
 
 .section h2 {
     margin-bottom: var(--espacamento-md);
     color: var(--cor-primaria);
-    border-bottom: 2px solid var(--cor-borda);
+    border-bottom: 1px dashed rgba(255,255,255,0.04);
     padding-bottom: var(--espacamento-sm);
 }
 
@@ -165,8 +179,10 @@ nav a:hover {
 .form-group textarea {
     width: 100%;
     padding: var(--espacamento-sm);
-    border: 1px solid var(--cor-borda);
-    border-radius: var(--border-radius);
+    border: 1px solid rgba(255,255,255,0.06);
+    background: transparent;
+    color: var(--cor-texto);
+    border-radius: 6px;
     font-family: inherit;
     font-size: 1rem;
 }
@@ -177,11 +193,11 @@ nav a:hover {
 }
 
 .btn-primary {
-    background: var(--cor-primaria);
+    background: linear-gradient(90deg, var(--cor-primaria), var(--cor-secundaria));
     color: var(--cor-texto-claro);
     padding: var(--espacamento-sm) var(--espacamento-md);
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: 8px;
     cursor: pointer;
     transition: var(--transicao);
     font-size: 1rem;
@@ -199,11 +215,11 @@ nav a:hover {
 }
 
 .btn-secondary {
-    background: var(--cor-texto);
+    background: rgba(255,255,255,0.06);
     color: var(--cor-texto-claro);
     padding: calc(var(--espacamento-sm) / 2) var(--espacamento-sm);
-    border: none;
-    border-radius: calc(var(--border-radius) / 2);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 6px;
     cursor: pointer;
     transition: var(--transicao);
     font-size: 0.9rem;
@@ -269,10 +285,10 @@ th {
 }
 
 .video-card {
-    background: var(--cor-fundo-card);
-    border-radius: var(--border-radius);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+    border-radius: 8px;
     padding: var(--espacamento-md);
-    box-shadow: var(--sombra);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
     border-left: 4px solid var(--cor-primaria);
     transition: var(--transicao);
 }
@@ -340,10 +356,10 @@ th {
     bottom: 20px;
     right: 20px;
     padding: var(--espacamento-md);
-    border-radius: var(--border-radius);
-    background: var(--cor-sucesso);
+    border-radius: 8px;
+    background: var(--green);
     color: var(--cor-texto-claro);
-    box-shadow: var(--sombra-forte);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
     z-index: 1000;
     transition: var(--transicao);
 }
@@ -351,8 +367,8 @@ th {
 footer {
     text-align: center;
     padding: var(--espacamento-md);
-    background: var(--cor-texto);
-    color: var(--cor-texto-claro);
+    background: transparent;
+    color: var(--comment);
     margin-top: var(--espacamento-lg);
 }
 

@@ -30,6 +30,8 @@ const AppState = {
     videos: [],
     unsubscribeCronograma: null,
     unsubscribeVideos: null,
+    unsubscribeEquipe: null,
+    unsubscribeEntregas: null,
     user: null,
     subscribers: [],
 
@@ -379,13 +381,12 @@ async function salvarVideo(e) {
 
     // Validação leve
     const validVideo = validateVideo(data);
-    if (!validVideo.ok) { showNotification(validVideo.msg, true); submitBtn.disabled = false; submitBtn.textContent = originalText; return; }
+    if (!validVideo.ok) { showNotification(validVideo.msg, true); return; }
 
     // Desabilitar botão e mostrar estado de carregamento
     const submitBtn = document.getElementById('btn-salvar-video');
-    const originalText = submitBtn.textContent;
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Salvando...';
+    const originalText = submitBtn ? submitBtn.textContent : 'Salvar';
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Salvando...'; }
 
     try {
         if (videoId) {
@@ -412,10 +413,102 @@ async function salvarVideo(e) {
         showNotification('Erro ao salvar vídeo: ' + (error.message || error), true);
     } finally {
         // Restaurar botão
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalText; }
     }
 }
+
+// --- Equipe: CRUD básico (subcollection 'equipe') ---
+async function salvarMembroEquipe(e) {
+    e.preventDefault();
+    if (!requireAuth()) return;
+    if (!AppState.eventoId) { showNotification('Primeiro salve as informações gerais do evento', true); return; }
+
+    const form = e.target;
+    const data = Object.fromEntries(new FormData(form));
+    const id = data['membro-id'];
+    delete data['membro-id'];
+    data.timestamp = serverTimestamp();
+    data.ownerUid = auth.currentUser ? auth.currentUser.uid : null;
+
+    try {
+        if (id) {
+            await updateDoc(doc(db, 'eventos', AppState.eventoId, 'equipe', id), { ...data, ultimaModificacao: serverTimestamp() });
+            showNotification('Membro atualizado');
+        } else {
+            await addDoc(collection(db, 'eventos', AppState.eventoId, 'equipe'), data);
+            showNotification('Membro adicionado');
+        }
+        form.reset();
+    } catch (err) {
+        console.error('Erro salvar membro:', err);
+        showNotification('Erro ao salvar membro', true);
+    }
+}
+
+async function removerMembroEquipe(id) {
+    if (!confirm('Remover membro?')) return;
+    if (!requireAuth()) return;
+    try { await deleteDoc(doc(db, 'eventos', AppState.eventoId, 'equipe', id)); } catch (err) { console.error(err); showNotification('Erro ao remover membro', true); }
+}
+
+function renderizarEquipe(items) {
+    const container = document.getElementById('lista-equipe');
+    if (!container) return;
+    container.innerHTML = '';
+    if (!items || items.length === 0) { container.innerHTML = '<p class="no-videos">Nenhum membro.</p>'; return; }
+    items.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'video-card';
+        card.setAttribute('data-id', m.id);
+        card.innerHTML = `<h4>${m['membro-nome'] || 'Sem nome'}</h4><p><strong>Função:</strong> ${m['membro-funcao'] || '-'}</p><div class="video-actions"><button data-action="editar-membro" class="btn-secondary">Editar</button><button data-action="remover-membro" class="btn-secondary btn-danger">Remover</button></div>`;
+        container.appendChild(card);
+    });
+}
+
+// --- Entregas: CRUD básico (subcollection 'entregas') ---
+async function salvarEntrega(e) {
+    e.preventDefault();
+    if (!requireAuth()) return;
+    if (!AppState.eventoId) { showNotification('Primeiro salve as informações gerais do evento', true); return; }
+
+    const form = e.target;
+    const data = Object.fromEntries(new FormData(form));
+    const id = data['entrega-id'];
+    delete data['entrega-id'];
+    data.timestamp = serverTimestamp();
+    try {
+        if (id) {
+            await updateDoc(doc(db, 'eventos', AppState.eventoId, 'entregas', id), { ...data, ultimaModificacao: serverTimestamp() });
+            showNotification('Entrega atualizada');
+        } else {
+            await addDoc(collection(db, 'eventos', AppState.eventoId, 'entregas'), data);
+            showNotification('Entrega adicionada');
+        }
+        form.reset();
+    } catch (err) { console.error(err); showNotification('Erro ao salvar entrega', true); }
+}
+
+async function removerEntrega(id) {
+    if (!confirm('Remover entrega?')) return;
+    if (!requireAuth()) return;
+    try { await deleteDoc(doc(db, 'eventos', AppState.eventoId, 'entregas', id)); } catch (err) { console.error(err); showNotification('Erro ao remover entrega', true); }
+}
+
+function renderizarEntregas(items) {
+    const container = document.getElementById('lista-entregas');
+    if (!container) return;
+    container.innerHTML = '';
+    if (!items || items.length === 0) { container.innerHTML = '<p class="no-videos">Nenhuma entrega.</p>'; return; }
+    items.forEach(it => {
+        const card = document.createElement('div');
+        card.className = 'video-card';
+        card.setAttribute('data-id', it.id);
+        card.innerHTML = `<h4>${it['entrega-titulo'] || 'Sem título'}</h4><p><strong>Prazo:</strong> ${it['entrega-prazo'] || '-'}</p><p><strong>Status:</strong> ${it['entrega-status'] || '-'}</p><div class="video-actions"><button data-action="editar-entrega" class="btn-secondary">Editar</button><button data-action="remover-entrega" class="btn-secondary btn-danger">Remover</button></div>`;
+        container.appendChild(card);
+    });
+}
+
+// Atualizar iniciarListenersTempoReal para incluir equipe e entregas
 
 // Função para atualizar status do vídeo
 async function atualizarStatusVideo(videoId, novoStatus) {
@@ -565,6 +658,28 @@ function iniciarListenersTempoReal() {
             showNotification('Erro ao sincronizar vídeos', true);
         }
     );
+
+    // Listener para equipe
+    if (AppState.unsubscribeEquipe) try { AppState.unsubscribeEquipe(); } catch (e) {}
+    AppState.unsubscribeEquipe = onSnapshot(
+        fsQuery(collection(db, 'eventos', AppState.eventoId, 'equipe'), orderBy('timestamp')),
+        (snapshot) => {
+            const items = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderizarEquipe(items);
+        },
+        (err) => { console.error('Erro sync equipe', err); }
+    );
+
+    // Listener para entregas
+    if (AppState.unsubscribeEntregas) try { AppState.unsubscribeEntregas(); } catch (e) {}
+    AppState.unsubscribeEntregas = onSnapshot(
+        fsQuery(collection(db, 'eventos', AppState.eventoId, 'entregas'), orderBy('timestamp')),
+        (snapshot) => {
+            const items = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderizarEntregas(items);
+        },
+        (err) => { console.error('Erro sync entregas', err); }
+    );
 }
 
 // Função para carregar dados existentes ao iniciar
@@ -653,6 +768,60 @@ function configurarEventDelegation() {
         });
     }
 
+    // Delegation para lista de equipe
+    const listaEquipe = document.getElementById('lista-equipe');
+    if (listaEquipe) {
+        listaEquipe.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+            const card = btn.closest('.video-card');
+            const id = card && card.getAttribute('data-id');
+            if (action === 'remover-membro' && id) removerMembroEquipe(id);
+            if (action === 'editar-membro' && id) {
+                const form = document.getElementById('form-equipe');
+                const member = null; // we'll fetch data from Firestore doc quickly
+                getDoc(doc(db, 'eventos', AppState.eventoId, 'equipe', id)).then(snap => {
+                    if (!snap.exists()) return;
+                    const data = snap.data();
+                    if (form) {
+                        if (form.elements.namedItem('membro-id')) form.elements.namedItem('membro-id').value = id;
+                        if (form.elements.namedItem('membro-nome')) form.elements.namedItem('membro-nome').value = data['membro-nome'] || '';
+                        if (form.elements.namedItem('membro-funcao')) form.elements.namedItem('membro-funcao').value = data['membro-funcao'] || '';
+                        form.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }).catch(err => console.error(err));
+            }
+        });
+    }
+
+    // Delegation para lista de entregas
+    const listaEntregas = document.getElementById('lista-entregas');
+    if (listaEntregas) {
+        listaEntregas.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const action = btn.getAttribute('data-action');
+            const card = btn.closest('.video-card');
+            const id = card && card.getAttribute('data-id');
+            if (action === 'remover-entrega' && id) removerEntrega(id);
+            if (action === 'editar-entrega' && id) {
+                const form = document.getElementById('form-entrega');
+                getDoc(doc(db, 'eventos', AppState.eventoId, 'entregas', id)).then(snap => {
+                    if (!snap.exists()) return;
+                    const data = snap.data();
+                    if (form) {
+                        if (form.elements.namedItem('entrega-id')) form.elements.namedItem('entrega-id').value = id;
+                        if (form.elements.namedItem('entrega-titulo')) form.elements.namedItem('entrega-titulo').value = data['entrega-titulo'] || '';
+                        if (form.elements.namedItem('entrega-prazo')) form.elements.namedItem('entrega-prazo').value = data['entrega-prazo'] || '';
+                        if (form.elements.namedItem('entrega-status')) form.elements.namedItem('entrega-status').value = data['entrega-status'] || 'pendente';
+                        form.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }).catch(err => console.error(err));
+            }
+        });
+    }
+
     // Filtros de categoria de vídeos
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -687,7 +856,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configurar event listeners
     document.getElementById('form-info-gerais').addEventListener('submit', salvarInformacoesGerais);
     document.getElementById('add-cronograma').addEventListener('click', adicionarItemCronograma);
-    document.getElementById('form-video').addEventListener('submit', salvarVideo);
+    const formVideoEl = document.getElementById('form-video');
+    if (formVideoEl) formVideoEl.addEventListener('submit', salvarVideo);
+    const formEquipe = document.getElementById('form-equipe');
+    if (formEquipe) formEquipe.addEventListener('submit', salvarMembroEquipe);
+    const formEntrega = document.getElementById('form-entrega');
+    if (formEntrega) formEntrega.addEventListener('submit', salvarEntrega);
     
     // Configurar event delegation
     configurarEventDelegation();

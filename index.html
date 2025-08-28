@@ -174,12 +174,53 @@
 
         <section id="equipe" class="section">
             <h2>Gerenciamento de Equipe</h2>
-            <p>Funcionalidade a ser implementada em breve.</p>
+            <div class="equipe-panel">
+                <form id="form-equipe">
+                    <input type="hidden" name="membro-id">
+                    <div class="form-group">
+                        <label for="input-membro-nome">Nome:</label>
+                        <input type="text" name="membro-nome" id="input-membro-nome" required placeholder="Nome do membro">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-membro-funcao">Função:</label>
+                        <input type="text" name="membro-funcao" id="input-membro-funcao" placeholder="Ex: Câmera, Som, Produtor">
+                    </div>
+                    <button type="submit" id="btn-salvar-membro">Salvar Membro</button>
+                </form>
+
+                <div id="lista-equipe" class="videos-container" aria-live="polite">
+                    <!-- Membros serão renderizados aqui -->
+                </div>
+            </div>
         </section>
 
         <section id="entregas" class="section">
             <h2>Controle de Entregas</h2>
-            <p>Funcionalidade a ser implementada em breve.</p>
+            <div class="entregas-panel">
+                <form id="form-entrega">
+                    <input type="hidden" name="entrega-id">
+                    <div class="form-group">
+                        <label for="input-entrega-titulo">Título da Entrega:</label>
+                        <input type="text" name="entrega-titulo" id="input-entrega-titulo" required placeholder="Ex: Vídeo Realtime - 30s">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-entrega-prazo">Prazo:</label>
+                        <input type="date" name="entrega-prazo" id="input-entrega-prazo">
+                    </div>
+                    <div class="form-group">
+                        <label for="select-entrega-status">Status:</label>
+                        <select name="entrega-status" id="select-entrega-status">
+                            <option value="pendente">Pendente</option>
+                            <option value="concluido">Concluído</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="btn-salvar-entrega">Salvar Entrega</button>
+                </form>
+
+                <div id="lista-entregas" class="videos-container" aria-live="polite">
+                    <!-- Entregas serão renderizadas aqui -->
+                </div>
+            </div>
         </section>
     </main>
 
@@ -204,6 +245,31 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
+    </script>
+
+    <script type="module">
+        // Conectar aos emuladores automaticamente quando em localhost ou quando ?useEmulator=true
+        (async function() {
+            try {
+                const useEmulator = (location.hostname === 'localhost') || (new URL(window.location.href).searchParams.get('useEmulator') === 'true');
+                if (!useEmulator) return;
+
+                const { getFirestore, connectFirestoreEmulator } = await import('https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js');
+                const { getAuth, connectAuthEmulator } = await import('https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js');
+
+                // Padrões do Emulador
+                const FIRESTORE_HOST = 'localhost';
+                const FIRESTORE_PORT = 8080;
+                const AUTH_URL = 'http://localhost:9099';
+
+                // Conectar instâncias usadas pela app (mesma instância inicializada em index.html)
+                connectFirestoreEmulator(getFirestore(), FIRESTORE_HOST, FIRESTORE_PORT);
+                connectAuthEmulator(getAuth(), AUTH_URL);
+                console.info('Firebase emulators connected: Firestore -> %s:%d, Auth -> %s', FIRESTORE_HOST, FIRESTORE_PORT, AUTH_URL);
+            } catch (err) {
+                console.warn('Falha ao tentar conectar aos emuladores localmente', err);
+            }
+        })();
     </script>
 
     <script src="scripts/script.js" type="module"></script>
