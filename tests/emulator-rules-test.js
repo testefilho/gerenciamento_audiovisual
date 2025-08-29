@@ -6,9 +6,21 @@ const { getFirestore } = require('firebase-admin/firestore');
   // Carregar regras locais
   const rules = fs.readFileSync('firestore.rules', 'utf8');
 
+  // Attempt to detect local emulator host/port from env (FIRESTORE_EMULATOR_HOST)
+  // so the test can be run directly with `node tests/emulator-rules-test.js` when an emulator
+  // is already running. Otherwise the test should be run with `firebase emulators:exec`.
+  let firestoreOptions = { rules };
+  if (process.env.FIRESTORE_EMULATOR_HOST) {
+    const hostPort = String(process.env.FIRESTORE_EMULATOR_HOST).split(':');
+    const host = hostPort[0] || 'localhost';
+    const port = hostPort[1] ? parseInt(hostPort[1], 10) : 8080;
+    firestoreOptions = { rules, host, port };
+    console.log('Using FIRESTORE_EMULATOR_HOST', process.env.FIRESTORE_EMULATOR_HOST);
+  }
+
   const testEnv = await initializeTestEnvironment({
     projectId: 'evento-producao-emulator',
-    firestore: { rules },
+    firestore: firestoreOptions,
   });
 
   try {

@@ -1,10 +1,42 @@
 const fetch = require('node-fetch');
-const { firebaseConfig } = require('../firebase-config');
+let firebaseConfig;
+try {
+  if (process.env.USE_LOCAL_FIREBASE_CONFIG) {
+    firebaseConfig = require('../firebase-config.test').firebaseConfig;
+  } else {
+    firebaseConfig = require('../firebase-config').firebaseConfig;
+  }
+} catch (e) {
+  // fallback para arquivo de teste
+  try { firebaseConfig = require('../firebase-config.test').firebaseConfig; } catch (e2) { throw e; }
+}
 
 const apiKey = firebaseConfig.apiKey;
 const projectId = firebaseConfig.projectId;
 
+// Proteção: evitar executar o smoke-test contra projeto real por engano.
+// Para permitir execuções intencionais contra produção, defina a variável de ambiente
+// ALLOW_SMOKE_REMOTE=1 ao executar o script.
+if (!process.env.ALLOW_SMOKE_REMOTE) {
+  if (projectId && !String(projectId).includes('emulator') && !String(projectId).includes('local')) {
+    console.error('smoke-test abortado: projeto parece ser remoto. Para permitir, configure ALLOW_SMOKE_REMOTE=1');
+    process.exit(1);
+  }
+}
+
 async function signUp(email, password) {
+  // In emulator mode, call the Auth emulator REST endpoint so we obtain a valid idToken
+  if (process.env.USE_LOCAL_FIREBASE_CONFIG) {
+    const authHost = process.env.FIREBASE_AUTH_EMULATOR_HOST || 'localhost:9099';
+    const base = `http://${authHost}/identitytoolkit.googleapis.com/v1`;
+    const url = `${base}/accounts:signUp?key=${apiKey}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, returnSecureToken: true })
+    });
+    return res.json();
+  }
   const url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`;
   const res = await fetch(url, {
     method: 'POST',
@@ -15,6 +47,17 @@ async function signUp(email, password) {
 }
 
 async function signIn(email, password) {
+  if (process.env.USE_LOCAL_FIREBASE_CONFIG) {
+    const authHost = process.env.FIREBASE_AUTH_EMULATOR_HOST || 'localhost:9099';
+    const base = `http://${authHost}/identitytoolkit.googleapis.com/v1`;
+    const url = `${base}/accounts:signInWithPassword?key=${apiKey}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, returnSecureToken: true })
+    });
+    return res.json();
+  }
   const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`;
   const res = await fetch(url, {
     method: 'POST',
@@ -47,7 +90,13 @@ function toFirestoreValue(value) {
 }
 
 async function createEvent(idToken, eventoId, data) {
-  const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/eventos?documentId=${eventoId}`;
+  let url;
+  if (process.env.USE_LOCAL_FIREBASE_CONFIG) {
+    // Firestore emulator REST endpoint
+    url = `http://localhost:8080/v1/projects/${projectId}/databases/(default)/documents/eventos?documentId=${eventoId}`;
+  } else {
+    url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/eventos?documentId=${eventoId}`;
+  }
   const body = {
     fields: Object.fromEntries(Object.entries(data).map(([k, v]) => [k, toFirestoreValue(v)]))
   };
