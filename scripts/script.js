@@ -186,18 +186,28 @@ function validateVideo(data) {
 function showNotification(message, isError = false) {
     const notification = document.getElementById('notification');
     const notificationText = document.getElementById('notification-text');
-    
+    if (!notification || !notificationText) {
+        // Fallback para quando a UI não estiver presente (ex: testes automatizados)
+        if (isError) console.error('NOTIFICATION:', message);
+        else console.info('NOTIFICATION:', message);
+        return;
+    }
+
     notificationText.textContent = message;
     notification.classList.remove('hidden');
-    
-    if (isError) {
-        notification.style.background = 'var(--cor-erro)';
-    } else {
-        notification.style.background = 'var(--cor-sucesso)';
+
+    try {
+        if (isError) {
+            notification.style.background = 'var(--cor-erro)';
+        } else {
+            notification.style.background = 'var(--cor-sucesso)';
+        }
+    } catch (e) {
+        // ignora estilos se não aplicáveis
     }
-    
+
     setTimeout(() => {
-        notification.classList.add('hidden');
+        try { notification.classList.add('hidden'); } catch (e) {}
     }, 3000);
 }
 
@@ -225,6 +235,7 @@ async function salvarInformacoesGerais(e) {
     if (!requireAuth()) return;
     
     const form = e.target;
+    if (!form) { showNotification('Formulário não encontrado', true); return; }
     const formData = new FormData(form);
     const data = Object.fromEntries(formData);
     
@@ -242,9 +253,8 @@ async function salvarInformacoesGerais(e) {
     
     // Desabilitar botão e mostrar estado de carregamento
     const submitBtn = document.getElementById('btn-salvar-info');
-    const originalText = submitBtn.textContent;
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Salvando...';
+    const originalText = submitBtn ? submitBtn.textContent : null;
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Salvando...'; }
     
     try {
         // Salvar no Firestore incluindo ownerUid para controle de propriedade
@@ -260,16 +270,40 @@ async function salvarInformacoesGerais(e) {
         AppState.setEvento(AppState.eventoId, { infoGerais: data });
 
         // Iniciar listeners em tempo real para as subcoleções
-        iniciarListenersTempoReal();
+    // Iniciar listeners em tempo real
+    iniciarListenersTempoReal();
+    // Marcar seção de cronograma como ativa para o usuário ver o resultado
+    try { document.querySelector('nav a[href="#cronograma"]').click(); } catch (e) {}
         
     } catch (error) {
         console.error("Erro ao salvar informações: ", error);
         showNotification('Erro ao salvar informações: ' + error.message, true);
     } finally {
         // Restaurar botão
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalText || 'Salvar Informações'; }
     }
+}
+
+// Navegação por abas: mostrar/ocultar seções e marcar link ativo
+function setupTabs() {
+    const links = document.querySelectorAll('nav a');
+    if (!links || links.length === 0) return;
+    links.forEach(a => {
+        a.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            const href = a.getAttribute('href');
+            if (!href || !href.startsWith('#')) return;
+            // esconder todas as seções
+            document.querySelectorAll('main .section').forEach(s => s.classList.add('hidden'));
+            const target = document.querySelector(href);
+            if (target) target.classList.remove('hidden');
+            // atualizar estado ativo no nav
+            document.querySelectorAll('nav a').forEach(n => n.classList.remove('active'));
+            a.classList.add('active');
+            // rolar até topo da seção
+            try { target.scrollIntoView({ behavior: 'smooth' }); } catch (e) {}
+        });
+    });
 }
 
 // Função para adicionar item ao cronograma
@@ -460,7 +494,13 @@ function renderizarEquipe(items) {
         const card = document.createElement('div');
         card.className = 'video-card';
         card.setAttribute('data-id', m.id);
-        card.innerHTML = `<h4>${m['membro-nome'] || 'Sem nome'}</h4><p><strong>Função:</strong> ${m['membro-funcao'] || '-'}</p><div class="video-actions"><button data-action="editar-membro" class="btn-secondary">Editar</button><button data-action="remover-membro" class="btn-secondary btn-danger">Remover</button></div>`;
+        card.innerHTML = `
+            <h4>${m['membro-nome'] || 'Sem nome'}</h4>
+            <p><strong>Função:</strong> ${m['membro-funcao'] || '-'}</p>
+            <div class="video-actions">
+                <button data-action="editar-membro" data-id="${m.id}" class="btn-secondary">Editar</button>
+                <button data-action="remover-membro" data-id="${m.id}" class="btn-secondary btn-danger">Remover</button>
+            </div>`;
         container.appendChild(card);
     });
 }
@@ -503,8 +543,28 @@ function renderizarEntregas(items) {
         const card = document.createElement('div');
         card.className = 'video-card';
         card.setAttribute('data-id', it.id);
-        card.innerHTML = `<h4>${it['entrega-titulo'] || 'Sem título'}</h4><p><strong>Prazo:</strong> ${it['entrega-prazo'] || '-'}</p><p><strong>Status:</strong> ${it['entrega-status'] || '-'}</p><div class="video-actions"><button data-action="editar-entrega" class="btn-secondary">Editar</button><button data-action="remover-entrega" class="btn-secondary btn-danger">Remover</button></div>`;
+        card.innerHTML = `
+            <h4>${it['entrega-titulo'] || 'Sem título'}</h4>
+            <p><strong>Prazo:</strong> ${it['entrega-prazo'] || '-'}</p>
+            <p><strong>Status:</strong> ${it['entrega-status'] || '-'}</p>
+            <div class="video-actions">
+                <button data-action="editar-entrega" data-id="${it.id}" class="btn-secondary">Editar</button>
+                <button data-action="remover-entrega" data-id="${it.id}" class="btn-secondary btn-danger">Remover</button>
+            </div>`;
         container.appendChild(card);
+    });
+}
+
+// Preenche um formulário com dados de um objeto, opcionalmente usando um prefixo de nome
+function fillForm(form, data, prefix = '') {
+    if (!form || !data) return;
+    Object.entries(data).forEach(([k, v]) => {
+        const name = prefix ? `${prefix}-${k}` : k;
+        const el = form.elements.namedItem(name) || form.elements.namedItem(k) || form.elements.namedItem(prefix ? `${prefix}${k}` : null);
+        if (!el) return;
+        try {
+            if (el.tagName === 'SELECT' || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = v || '';
+        } catch (e) {}
     });
 }
 
@@ -539,6 +599,7 @@ async function removerVideo(videoId) {
 // Função para renderizar a lista de vídeos
 function renderizarVideos(videos, categoria = 'todos') {
     const container = document.getElementById('lista-videos');
+    if (!container) return;
     container.innerHTML = '';
     
     // Filtrar por categoria se necessário
@@ -595,19 +656,20 @@ function renderizarVideos(videos, categoria = 'todos') {
 // Função para popular formulário de edição de vídeo
 function popularFormularioEdicaoVideo(video) {
     const form = document.getElementById('form-video');
-    
-    // Preencher campos do formulário
-    Object.keys(video).forEach(key => {
-        if (key === 'id') return;
-        const el = form.elements.namedItem(key) || form.elements.namedItem(`video-${key}`);
-        if (el) el.value = video[key] || '';
+    if (!form) return;
+    // mapear video fields para form names: video-categoria => categoria
+    const mapped = {};
+    Object.entries(video).forEach(([k, v]) => {
+        if (k === 'id') return;
+        // remove prefix if already prefixed
+        mapped[k] = v;
+        mapped[`video-${k}`] = v;
     });
-
-    // Adicionar ID do vídeo para edição
     if (form.elements.namedItem('video-id')) form.elements.namedItem('video-id').value = video.id || '';
-
-    // Rolar até o formulário
-    form.scrollIntoView({ behavior: 'smooth' });
+    // preencher usando helper
+    fillForm(form, mapped);
+    try { document.querySelector('nav a[href="#videos"]').click(); } catch (e) {}
+    try { form.scrollIntoView({ behavior: 'smooth' }); } catch (e) {}
 }
 
 // Função para iniciar listeners em tempo real
@@ -780,14 +842,14 @@ function configurarEventDelegation() {
             if (action === 'remover-membro' && id) removerMembroEquipe(id);
             if (action === 'editar-membro' && id) {
                 const form = document.getElementById('form-equipe');
-                const member = null; // we'll fetch data from Firestore doc quickly
                 getDoc(doc(db, 'eventos', AppState.eventoId, 'equipe', id)).then(snap => {
                     if (!snap.exists()) return;
                     const data = snap.data();
                     if (form) {
                         if (form.elements.namedItem('membro-id')) form.elements.namedItem('membro-id').value = id;
-                        if (form.elements.namedItem('membro-nome')) form.elements.namedItem('membro-nome').value = data['membro-nome'] || '';
-                        if (form.elements.namedItem('membro-funcao')) form.elements.namedItem('membro-funcao').value = data['membro-funcao'] || '';
+                        // usar helper para preencher restante
+                        fillForm(form, data);
+                        try { document.querySelector('nav a[href="#equipe"]').click(); } catch (e) {}
                         form.scrollIntoView({ behavior: 'smooth' });
                     }
                 }).catch(err => console.error(err));
@@ -812,9 +874,8 @@ function configurarEventDelegation() {
                     const data = snap.data();
                     if (form) {
                         if (form.elements.namedItem('entrega-id')) form.elements.namedItem('entrega-id').value = id;
-                        if (form.elements.namedItem('entrega-titulo')) form.elements.namedItem('entrega-titulo').value = data['entrega-titulo'] || '';
-                        if (form.elements.namedItem('entrega-prazo')) form.elements.namedItem('entrega-prazo').value = data['entrega-prazo'] || '';
-                        if (form.elements.namedItem('entrega-status')) form.elements.namedItem('entrega-status').value = data['entrega-status'] || 'pendente';
+                        fillForm(form, data);
+                        try { document.querySelector('nav a[href="#entregas"]').click(); } catch (e) {}
                         form.scrollIntoView({ behavior: 'smooth' });
                     }
                 }).catch(err => console.error(err));
@@ -854,8 +915,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (signupBtn) signupBtn.addEventListener('click', (ev) => { ev.preventDefault(); signupWithEmail(emailInput.value, passInput.value); });
     if (signoutBtn) signoutBtn.addEventListener('click', (ev) => { ev.preventDefault(); signoutCurrent(); });
     // Configurar event listeners
-    document.getElementById('form-info-gerais').addEventListener('submit', salvarInformacoesGerais);
-    document.getElementById('add-cronograma').addEventListener('click', adicionarItemCronograma);
+    const formInfo = document.getElementById('form-info-gerais');
+    if (formInfo) formInfo.addEventListener('submit', salvarInformacoesGerais);
+    const addCron = document.getElementById('add-cronograma');
+    if (addCron) addCron.addEventListener('click', adicionarItemCronograma);
     const formVideoEl = document.getElementById('form-video');
     if (formVideoEl) formVideoEl.addEventListener('submit', salvarVideo);
     const formEquipe = document.getElementById('form-equipe');
@@ -865,6 +928,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Configurar event delegation
     configurarEventDelegation();
+    // Configurar navegação por abas (se existente)
+    try { setupTabs(); } catch (e) {}
     
     // Carregar dados existentes se houver um evento na URL
     carregarDadosExistentes();

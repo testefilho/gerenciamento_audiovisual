@@ -1,0 +1,43 @@
+name: CI - Emulator tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  emulator-tests:
+    name: Run emulator-based tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java (required by Firestore emulator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          # Avoid puppeteer downloading Chromium in CI; use system Chrome
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+          npm ci
+
+      - name: Run REST validation under emulators
+        run: npx firebase emulators:exec "node tests/rest-validate.js"
+
+      - name: Run E2E headless under emulators
+        # Use system Chrome provided by runner
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: '1'
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome-stable
+        run: npx firebase emulators:exec "npm run e2e-headless"

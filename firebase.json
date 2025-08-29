@@ -12,7 +12,7 @@
     "ui": {
       "enabled": true,
       "port": 4000
-    }
+    },
+    "singleProjectMode": true
   }
 }
-

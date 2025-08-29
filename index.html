@@ -9,15 +9,15 @@
 <body>
     <header>
         <div class="logo-container">
-            <img src="assets/logos/gonetwork-logo.png" alt="Logo da Gonetwork">
+            <img src="assets/logos/icon.png" alt="Logo da Gonetwork">
             <h1 id="evento-nome">Evento</h1>
             <span id="auth-status" title="Estado de autenticação" aria-live="polite">(autenticação: desconhecida)</span>
             <button id="btn-reauth" class="auth-btn" title="Reautenticar" aria-label="Reautenticar">Reautenticar</button>
 
             <div id="auth-panel" class="auth-panel">
-                <form id="auth-form" class="auth-form" aria-label="Formulário de autenticação">
-                    <input type="email" id="auth-email" placeholder="email@exemplo.com" aria-label="Email" />
-                    <input type="password" id="auth-password" placeholder="Senha (mín 6)" aria-label="Senha" />
+            <form id="auth-form" class="auth-form" aria-label="Formulário de autenticação">
+                <input type="email" id="auth-email" placeholder="email@exemplo.com" aria-label="Email" autocomplete="username" />
+                <input type="password" id="auth-password" placeholder="Senha (mín 6)" aria-label="Senha" autocomplete="current-password" />
                     <div class="auth-actions">
                         <button type="button" id="btn-signin" class="auth-btn">Entrar</button>
                         <button type="button" id="btn-signup" class="auth-btn">Criar conta</button>
@@ -25,7 +25,7 @@
                     </div>
                 </form>
             </div>
-            <img src="assets/logos/evento-logo.png" alt="Logo do Evento">
+            <img src="assets/logos/icon.png" alt="Logo do Evento">
         </div>
     </header>
 
@@ -232,6 +232,7 @@
         <p>Sistema de Gestão de Produção - Gonetwork © 2025</p>
     </footer>
 
+    <link rel="icon" href="assets/logos/icon.png" />
     <!-- Firebase App (core SDK) -->
     <script type="module">
         // Import the functions you need from the SDKs you need
@@ -248,12 +249,15 @@
     </script>
 
     <script type="module">
-        // Conectar aos emuladores automaticamente quando em localhost ou quando ?useEmulator=true
-        (async function() {
+    // Conectar aos emuladores automaticamente quando em localhost, quando ?useEmulator=true,
+    // ou quando o firebaseConfig parecer ser o de emulador (projectId contém 'emulator' ou apiKey é a fake key)
+    const urlParams = new URL(window.location.href).searchParams;
+    const explicitParam = urlParams.get('useEmulator') === 'true';
+    const hostIsLocal = (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    const configLooksLikeEmulator = (firebaseConfig && ((firebaseConfig.projectId && String(firebaseConfig.projectId).includes('emulator')) || (firebaseConfig.apiKey && String(firebaseConfig.apiKey).includes('fake-emulator'))));
+    const useEmulator = explicitParam || hostIsLocal || configLooksLikeEmulator;
+        if (useEmulator) {
             try {
-                const useEmulator = (location.hostname === 'localhost') || (new URL(window.location.href).searchParams.get('useEmulator') === 'true');
-                if (!useEmulator) return;
-
                 const { getFirestore, connectFirestoreEmulator } = await import('https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js');
                 const { getAuth, connectAuthEmulator } = await import('https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js');
 
@@ -262,6 +266,8 @@
                 const FIRESTORE_PORT = 8080;
                 const AUTH_URL = 'http://localhost:9099';
 
+                console.info('Emulator auto-detection: explicitParam=%s hostIsLocal=%s configLooksLikeEmulator=%s => useEmulator=%s', explicitParam, hostIsLocal, configLooksLikeEmulator, useEmulator);
+
                 // Conectar instâncias usadas pela app (mesma instância inicializada em index.html)
                 connectFirestoreEmulator(getFirestore(), FIRESTORE_HOST, FIRESTORE_PORT);
                 connectAuthEmulator(getAuth(), AUTH_URL);
@@ -269,7 +275,7 @@
             } catch (err) {
                 console.warn('Falha ao tentar conectar aos emuladores localmente', err);
             }
-        })();
+        }
     </script>
 
     <script src="scripts/script.js" type="module"></script>

@@ -5,6 +5,7 @@
   "scripts": {
   "serve": "http-server -c-1 . -p 5500",
     "smoke-test": "node scripts/smoke-test.js",
+  "e2e-headless": "node tests/e2e-headless.js",
   "check:sensitive": "node scripts/check-sensitive-files.js",
     "test:emulator": "npx firebase emulators:exec \"node tests/emulator-rules-test.js\"",
   "test": "npm run test:emulator",
@@ -16,7 +17,8 @@
     "firebase-admin": "^13.4.0",
   "http-server": "^14.1.1",
   "firebase-tools": "^14.14.0",
-  "husky": "^8.0.0"
+  "husky": "^8.0.0",
+  "puppeteer": "^21.0.0"
   },
   "engines": {
     "node": ">=20.0.0"
