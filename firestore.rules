@@ -80,6 +80,28 @@ service cloud.firestore {
         ;
     }
 
+    // Validação para membros de equipe
+    function validEquipe(item) {
+      return item.keys().hasAll(['ownerUid','membro-nome'])
+        && item.ownerUid is string
+        && isOwner(item.ownerUid)
+        && validString(item['membro-nome'], 1, 200)
+        && (!item.keys().hasAny(['membro-funcao']) || validOptionalString(item['membro-funcao'], 100))
+        && (!item.keys().hasAny(['timestamp']) || validOptionalTimestamp(item['timestamp']));
+    }
+
+    // Validação para entregas
+    function validEntrega(item) {
+      let allowedStatus = ['pendente','concluido'];
+      return item.keys().hasAll(['ownerUid','entrega-titulo'])
+        && item.ownerUid is string
+        && isOwner(item.ownerUid)
+        && validString(item['entrega-titulo'], 1, 300)
+        && (!item.keys().hasAny(['entrega-prazo']) || (item['entrega-prazo'] is string && item['entrega-prazo'].matches('^\\d{4}-\\d{2}-\\d{2}$')))
+        && (!item.keys().hasAny(['entrega-status']) || (item['entrega-status'] is string && allowedStatus.hasAny([item['entrega-status']])))
+        && (!item.keys().hasAny(['timestamp']) || validOptionalTimestamp(item['timestamp']));
+    }
+
     // Regra principal para coleção de eventos
     match /eventos/{eventoId} {
       // Leitura pública permitida (ajuste se necessário)
@@ -98,10 +120,11 @@ service cloud.firestore {
       // Subcoleções: cronograma e videos com validação por documento
       match /cronograma/{itemId} {
         allow read: if true;
-        allow create: if isSignedIn()
-                       && get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
-                       && validCronograma(request.resource.data)
-                       && request.resource.data.ownerUid == request.auth.uid;
+  allow create: if isSignedIn()
+           && exists(/databases/$(database)/documents/eventos/$(eventoId))
+           && get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+           && validCronograma(request.resource.data)
+           && request.resource.data.ownerUid == request.auth.uid;
         allow update: if get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
                        && resource.data.ownerUid == request.auth.uid
                        && validCronograma(request.resource.data);
@@ -111,13 +134,42 @@ service cloud.firestore {
 
       match /videos/{videoId} {
         allow read: if true;
-        allow create: if isSignedIn()
-                       && get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
-                       && validVideo(request.resource.data)
-                       && request.resource.data.ownerUid == request.auth.uid;
+  allow create: if isSignedIn()
+           && exists(/databases/$(database)/documents/eventos/$(eventoId))
+           && get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+           && validVideo(request.resource.data)
+           && request.resource.data.ownerUid == request.auth.uid;
         allow update: if get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
                        && resource.data.ownerUid == request.auth.uid
                        && validVideo(request.resource.data);
+        allow delete: if get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+                       && resource.data.ownerUid == request.auth.uid;
+      }
+      
+      match /equipe/{membroId} {
+        allow read: if true;
+  allow create: if isSignedIn()
+           && exists(/databases/$(database)/documents/eventos/$(eventoId))
+           && get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+           && validEquipe(request.resource.data)
+           && request.resource.data.ownerUid == request.auth.uid;
+        allow update: if get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+                       && resource.data.ownerUid == request.auth.uid
+                       && validEquipe(request.resource.data);
+        allow delete: if get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+                       && resource.data.ownerUid == request.auth.uid;
+      }
+
+      match /entregas/{entregaId} {
+        allow read: if true;
+  allow create: if isSignedIn()
+           && exists(/databases/$(database)/documents/eventos/$(eventoId))
+           && get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+           && validEntrega(request.resource.data)
+           && request.resource.data.ownerUid == request.auth.uid;
+        allow update: if get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
+                       && resource.data.ownerUid == request.auth.uid
+                       && validEntrega(request.resource.data);
         allow delete: if get(/databases/$(database)/documents/eventos/$(eventoId)).data.ownerUid == request.auth.uid
                        && resource.data.ownerUid == request.auth.uid;
       }

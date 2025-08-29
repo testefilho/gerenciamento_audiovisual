@@ -50,7 +50,7 @@ const path = require('path');
   // helper: create event document via Firestore emulator REST with ownerUid
   async function createEventViaRest(eventId, ownerUid, idToken) {
     try {
-      const projectId = 'evento-producao-emulator';
+  const projectId = 'evento-producao';
       const url = `http://127.0.0.1:8080/v1/projects/${projectId}/databases/(default)/documents/eventos?documentId=${eventId}`;
       const headers = { 'Content-Type': 'application/json' };
       if (idToken) headers['Authorization'] = `Bearer ${idToken}`;
@@ -74,7 +74,7 @@ const path = require('path');
   // helper: poll Firestore emulator REST for documents in eventos/{eventId}/cronograma
   async function pollFirestoreCronograma(eventId, timeout = 15000) {
     const start = Date.now();
-    const projectId = 'evento-producao-emulator';
+  const projectId = 'evento-producao';
     const base = `http://127.0.0.1:8080/v1/projects/${projectId}/databases/(default)/documents/eventos/${eventId}/cronograma`;
     const idToken = await getEmulatorIdToken();
     const headers = { 'Content-Type': 'application/json' };
@@ -172,12 +172,20 @@ const path = require('path');
   try {
     browser = await puppeteer.launch(launchOpts);
   } catch (launchErr) {
-    console.error('Failed to launch Puppeteer with options:', launchOpts);
+    console.error('Failed to launch Puppeteer with options (first attempt):', launchOpts);
     console.error('Error:', launchErr && launchErr.message ? launchErr.message : launchErr);
-    console.error('If you intended to use a custom browser binary, ensure the file exists and is a compatible Chromium build.');
-    process.exitCode = 3;
-    if (serverProcess) try { serverProcess.kill(); } catch (e) {}
-    return;
+    // Fallback: try launching without executablePath so Puppeteer uses its bundled Chromium
+    try {
+      console.warn('Attempting fallback: launching Puppeteer without executablePath (using bundled Chromium)');
+      delete launchOpts.executablePath;
+      browser = await puppeteer.launch(launchOpts);
+    } catch (fallbackErr) {
+      console.error('Fallback launch also failed:', fallbackErr && fallbackErr.message ? fallbackErr.message : fallbackErr);
+      console.error('If you intended to use a custom browser binary, ensure the file exists and is a compatible Chromium build.');
+      process.exitCode = 3;
+      if (serverProcess) try { serverProcess.kill(); } catch (e) {}
+      return;
+    }
   }
   
   const page = await browser.newPage();
@@ -199,7 +207,7 @@ const path = require('path');
   // helper: create a cronograma document via Firestore emulator REST
   async function createCronogramaViaRest(eventId, ownerUid, idToken) {
     try {
-      const projectId = 'evento-producao-emulator';
+    const projectId = 'evento-producao';
       const url = `http://127.0.0.1:8080/v1/projects/${projectId}/databases/(default)/documents/eventos/${eventId}/cronograma`;
       const headers = { 'Content-Type': 'application/json' };
       if (idToken) headers['Authorization'] = `Bearer ${idToken}`;
@@ -219,6 +227,24 @@ const path = require('path');
       return res.status === 200 || res.status === 201;
     } catch (e) {
       console.error('Erro createCronogramaViaRest:', e && e.message ? e.message : e);
+      return false;
+    }
+  }
+
+  // helper: create a document in a subcollection via Firestore emulator REST
+  async function createSubcollectionDocViaRest(eventId, subcollection, fieldsObj, idToken) {
+    try {
+  const projectId = 'evento-producao';
+      const url = `http://127.0.0.1:8080/v1/projects/${projectId}/databases/(default)/documents/eventos/${eventId}/${subcollection}`;
+      const headers = { 'Content-Type': 'application/json' };
+      if (idToken) headers['Authorization'] = `Bearer ${idToken}`;
+      const body = { fields: fieldsObj };
+      const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+      const j = await res.text();
+      console.log('createSubcollectionDocViaRest status=', res.status, 'body=', j);
+      return res.status === 200 || res.status === 201;
+    } catch (e) {
+      console.error('Erro createSubcollectionDocViaRest:', e && e.message ? e.message : e);
       return false;
     }
   }
@@ -273,12 +299,8 @@ const path = require('path');
         console.warn('Falha ao forçar signIn via page.evaluate:', evalErr && evalErr.message ? evalErr.message : evalErr);
       }
 
-      // criar o documento de evento com ownerUid para que regras permitam criar cronograma
-      const eventId = sanitizeEventId('E2E Test Event');
-      if (createdLocalId) {
-        const createdEvent = await createEventViaRest(eventId, createdLocalId, createdUserIdToken);
-        console.log('Evento criado via REST?', createdEvent);
-      }
+  // eventId will be created after the page confirms authentication so ownerUid/token can match
+  const eventId = sanitizeEventId('E2E Test Event');
 
       // aguardar indicador de auth
       try {
@@ -288,11 +310,122 @@ const path = require('path');
           return el && String(el.textContent || '').toLowerCase().includes('ok');
         }, { timeout: 20000 });
         console.log('Autenticação detectada OK');
+        // ensure the page's authenticated uid matches the user we created via REST
+        try {
+          let pageUid = await page.evaluate(() => {
+            try { const auth = (window.getAuth) ? window.getAuth() : (window.firebase && window.firebase.auth ? window.firebase.auth() : null); return auth && auth.currentUser ? auth.currentUser.uid : null; } catch (e) { return null; }
+          });
+          if (createdLocalId && pageUid !== createdLocalId) {
+            console.log('Page uid mismatch, attempting to sign out and sign in with email to match created user');
+            try {
+              await page.evaluate(async (email, pass) => {
+                try {
+                  const auth = (window.getAuth) ? window.getAuth() : (window.firebase && window.firebase.auth ? window.firebase.auth() : null);
+                  if (auth && auth.currentUser && auth.signOut) await auth.signOut();
+                  if (window.signInWithEmailAndPassword && window.getAuth) {
+                    await window.signInWithEmailAndPassword(window.getAuth(), email, pass);
+                  } else if (window.firebase && window.firebase.auth) {
+                    await window.firebase.auth().signInWithEmailAndPassword(email, pass);
+                  } else {
+                    const mod = await import('https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js');
+                    const { getAuth, signInWithEmailAndPassword } = mod;
+                    await signInWithEmailAndPassword(getAuth(), email, pass);
+                  }
+                } catch (e) { console.warn('page re-signin failed', e); }
+              }, testEmail, testPass);
+            } catch (e) {}
+
+            // retry reading page uid
+            const start = Date.now();
+            while (Date.now() - start < 5000) {
+              pageUid = await page.evaluate(() => {
+                try { const auth = (window.getAuth) ? window.getAuth() : (window.firebase && window.firebase.auth ? window.firebase.auth() : null); return auth && auth.currentUser ? auth.currentUser.uid : null; } catch (e) { return null; }
+              });
+              if (pageUid === createdLocalId) break;
+              await new Promise(r => setTimeout(r, 250));
+            }
+          }
+
+          // get idToken from page if available
+          let pageIdToken = null;
+          try {
+            pageIdToken = await page.evaluate(() => {
+              try { const auth = (window.getAuth) ? window.getAuth() : (window.firebase && window.firebase.auth ? window.firebase.auth() : null); return auth && auth.currentUser && auth.currentUser.getIdToken ? auth.currentUser.getIdToken(true) : null; } catch (e) { return null; }
+            });
+          } catch (e) { /* ignore */ }
+
+          // Ensure the page's auth uid matches the created user before attempting client-side event creation.
+          // If we cannot confirm within the timeout, fall back to REST creation using the known createdLocalId and idToken.
+          let ownerUid = createdLocalId;
+          try {
+            let pageUid = await page.evaluate(() => {
+              try { const a = (window.getAuth) ? window.getAuth() : (window.firebase && window.firebase.auth ? window.firebase.auth() : null); return a && a.currentUser ? a.currentUser.uid : null; } catch (e) { return null; }
+            });
+            const authWaitStart = Date.now();
+            while (Date.now() - authWaitStart < 10000 && pageUid !== createdLocalId) {
+              await new Promise(r => setTimeout(r, 250));
+              pageUid = await page.evaluate(() => {
+                try { const a = (window.getAuth) ? window.getAuth() : (window.firebase && window.firebase.auth ? window.firebase.auth() : null); return a && a.currentUser ? a.currentUser.uid : null; } catch (e) { return null; }
+              });
+            }
+            if (pageUid === createdLocalId) {
+              ownerUid = pageUid;
+              // Prefer client SDK creation so ownerUid is immediately visible to the client and listeners
+              try {
+                const createdByClient = await page.evaluate(async (eid) => {
+                  try {
+                    if (window.createEventClient) return await window.createEventClient(eid);
+                    return false;
+                  } catch (e) { return false; }
+                }, eventId);
+                if (createdByClient) console.log('Evento criado via helper cliente');
+                else {
+                  const tokenToUse = pageIdToken || createdUserIdToken;
+                  const restCreated = await createEventViaRest(eventId, ownerUid, tokenToUse);
+                  console.log('Evento criado via REST (client helper returned false) ownerUid=', ownerUid, 'tokenUsed=', !!tokenToUse, restCreated);
+                }
+              } catch (e) {
+                console.warn('Erro ao criar evento via helper cliente, caindo para REST:', e && e.message ? e.message : e);
+                const tokenToUse = pageIdToken || createdUserIdToken;
+                const restCreated = await createEventViaRest(eventId, ownerUid, tokenToUse);
+                console.log('Evento criado via REST (after client error) ownerUid=', ownerUid, 'tokenUsed=', !!tokenToUse, restCreated);
+              }
+            } else {
+              console.warn('Não foi possível confirmar que a página está autenticada com o usuário criado; criando evento via REST com ownerUid=', createdLocalId);
+              const tokenToUse = pageIdToken || createdUserIdToken;
+              const restCreated = await createEventViaRest(eventId, createdLocalId, tokenToUse);
+              console.log('Evento criado via REST (auth not confirmed) ownerUid=', createdLocalId, 'tokenUsed=', !!tokenToUse, restCreated);
+            }
+          } catch (e) {
+            console.warn('Erro no fluxo de criação do evento, tentando criação REST fallback:', e && e.message ? e.message : e);
+            const tokenToUse = pageIdToken || createdUserIdToken;
+            const restCreated = await createEventViaRest(eventId, createdLocalId, tokenToUse);
+            console.log('Evento criado via REST (exception path) ownerUid=', createdLocalId, 'tokenUsed=', !!tokenToUse, restCreated);
+          }
+          try {
+            await page.evaluate((eid) => { try { if (window.AppState) window.AppState.eventoId = eid; } catch(e){}; try { if (window.iniciarListenersTempoReal) window.iniciarListenersTempoReal(); } catch(e){}; }, eventId);
+            console.log('Instruído cliente a setar AppState.eventoId e iniciar listeners');
+          } catch (evalErr) { console.warn('Falha ao instruir cliente sobre eventId/listeners:', evalErr && evalErr.message ? evalErr.message : evalErr); }
+        } catch (e) {
+          console.warn('Erro garantido sync de auth/page antes do evento:', e && e.message ? e.message : e);
+        }
       } catch (authErr) {
         console.warn('Autenticação não pronta após signIn forçado; continuação poderá falhar');
       }
     } catch (e) {
       console.warn('Erro no setup de autenticação de teste:', e && e.message ? e.message : e);
+    }
+
+    // Aguardar que os listeners em tempo real sejam iniciados pelo cliente
+    try {
+      await page.evaluate(() => new Promise((res, rej) => {
+        if (window.__listenersReady) return res(true);
+        const t = setTimeout(() => res(false), 5000);
+        document.addEventListener('listeners-ready', () => { clearTimeout(t); res(true); }, { once: true });
+      }));
+      console.log('Listeners em tempo real sinalizados como prontos (ou timeout expirado)');
+    } catch (e) {
+      console.warn('Erro aguardando listeners-ready:', e && e.message ? e.message : e);
     }
 
     // preencher formulário de informações gerais
@@ -306,25 +439,60 @@ const path = require('path');
     await page.type('input[name="equipe-chegada"]', '15:00');
 
     console.log('Submetendo formulário de informações gerais');
-    await Promise.all([
-      page.click('#btn-salvar-info'),
-      page.waitForTimeout(1500)
-    ]);
+    await page.click('#btn-salvar-info');
+    // esperar event de sucesso ou pequena espera
+    await page.evaluate(() => new Promise((res) => {
+      const t = setTimeout(() => res(false), 3000);
+      document.addEventListener('save:success', (ev) => { clearTimeout(t); res(true); }, { once: true });
+    })).catch(() => {});
 
     // esperar que a seção cronograma esteja visível
     await page.waitForSelector('#cronograma:not(.hidden)', { timeout: 10000 });
 
     // adicionar um item de cronograma via botão
     console.log('Adicionando item de cronograma...');
-    await page.click('#add-cronograma');
-    await page.waitForTimeout(1000);
+  await page.click('#add-cronograma');
+  await page.waitForTimeout(500);
 
-    // Aguardar que uma linha seja adicionada na coleção cronograma no emulator (REST polling)
+    // Aguardar que uma linha seja adicionada na coleção cronograma no backend.
+    // Preferimos a sinalização via save:attempt -> save:success exposta pelo cliente. Se nada ocorrer, usar REST polling/fallback.
     const eventId = sanitizeEventId('E2E Test Event');
-      let okCron = await pollFirestoreCronograma(eventId, 20000);
+    // wait for client pending-save confirmation
+    let okCron = await page.evaluate(() => new Promise(res => {
+      const timeout = 20000;
+      let t = setTimeout(() => res(false), timeout);
+      document.addEventListener('save:attempt', function onAttempt(ev) {
+        if (!ev.detail || ev.detail.type !== 'cronograma') return;
+        document.addEventListener('save:success', function onSuccess(sv) {
+          if (sv.detail && sv.detail.type === 'cronograma') { clearTimeout(t); document.removeEventListener('save:attempt', onAttempt); res(true); }
+        }, { once: true });
+      }, { once: true });
+    }));
+    if (!okCron) {
+      console.warn('cronograma não detectado via client signaling, tentando detectar via REST polling...');
+      okCron = await pollFirestoreCronograma(eventId, 20000);
+    }
       if (!okCron) {
-        console.warn('cronograma não detectado via REST, tentando inserir via REST e re-poll...');
-        const created = await createCronogramaViaRest(eventId, createdLocalId, createdUserIdToken);
+        console.warn('cronograma não detectado via REST, attempting fallback');
+        const allowFallback = !!process.env.E2E_ALLOW_FALLBACK;
+        if (!allowFallback) {
+          throw new Error('E2E: cronograma not created by client path and REST fallback disabled (set E2E_ALLOW_FALLBACK=1 to permit)');
+        }
+        console.warn('E2E_ALLOW_FALLBACK enabled: performing REST fallback for cronograma');
+  // obter uid e idToken atuais da página para alinhar ownerUid e Authorization
+  const pageAuth = await page.evaluate(async () => {
+          try {
+            const a = (window.getAuth) ? window.getAuth() : (window.firebase && window.firebase.auth ? window.firebase.auth() : null);
+            const uid = a && a.currentUser ? a.currentUser.uid : null;
+            let token = null;
+            try { if (a && a.currentUser && a.currentUser.getIdToken) token = await a.currentUser.getIdToken(true); } catch(e) {}
+            return { uid, token };
+          } catch (e) { return { uid: null, token: null }; }
+        });
+  console.log('DEBUG E2E: pageAuth for cronograma fallback =', pageAuth);
+        const ownerForRest = pageAuth.uid || createdLocalId;
+        const tokenForRest = pageAuth.token || createdUserIdToken;
+        const created = await createCronogramaViaRest(eventId, ownerForRest, tokenForRest);
         if (created) {
           console.log('Documento cronograma criado via REST, aguardando aparecimento...');
           okCron = await pollFirestoreCronograma(eventId, 10000);
@@ -356,20 +524,66 @@ const path = require('path');
 
     // testar adicionar membro de equipe
     console.log('Testando seção de equipe...');
-    await page.click('nav a[href="#equipe"]');
+  await page.click('nav a[href="#equipe"]');
     await page.waitForSelector('#form-equipe', { timeout: 10000 });
+    // Instrumentation: detect submit/click events for debugging
+    await page.evaluate(() => {
+      const f = document.querySelector('#form-equipe');
+      if (f) f.addEventListener('submit', (ev) => { console.log('FORM_SUBMIT_ATTEMPT: form-equipe'); });
+      const btn = document.querySelector('#btn-salvar-membro');
+      if (btn) btn.addEventListener('click', () => console.log('BTN_CLICKED: btn-salvar-membro'));
+    });
     await page.type('input[name="membro-nome"]', 'Tester');
     await page.type('input[name="membro-funcao"]', 'Produtor');
     await page.click('#btn-salvar-membro');
-    await page.waitForTimeout(1500);
-
-    // Aguardar que o membro seja adicionado
-    await page.waitForFunction(() => {
-      const lista = document.querySelector('#lista-equipe');
-      return lista && lista.querySelectorAll('.video-card').length > 0;
-    }, { timeout: 5000 }).catch(() => {
-      console.warn('Timeout aguardando membro de equipe, continuando...');
-    });
+    // Aguarda evento save:attempt seguido por save:success, ou fallback
+    const membroSaved = await page.evaluate(() => new Promise((res) => {
+      const timeout = 7000;
+      let t = setTimeout(() => res(false), timeout);
+      // espera tentativa de salvar (cliente marca pending)
+      document.addEventListener('save:attempt', function onAttempt(ev) {
+        if (!ev.detail || ev.detail.type !== 'equipe') return;
+        // após tentativa, aguarda confirmação via save:success
+        document.addEventListener('save:success', function onSuccess(sv) {
+          if (sv.detail && sv.detail.type === 'equipe') { clearTimeout(t); document.removeEventListener('save:attempt', onAttempt); res(true); }
+        }, { once: true });
+      }, { once: true });
+      // fallback se nada ocorrer
+      setTimeout(() => { try { document.removeEventListener('save:attempt', () => {}); } catch(e){}; }, timeout);
+    }));
+      if (!membroSaved) {
+        console.warn('Nenhuma confirmação de save:success para equipe');
+        const allowFallbackEquipe = !!process.env.E2E_ALLOW_FALLBACK;
+        if (!allowFallbackEquipe) throw new Error('E2E: equipe save not confirmed and REST fallback disabled (set E2E_ALLOW_FALLBACK=1 to permit)');
+        console.warn('E2E_ALLOW_FALLBACK enabled: performing REST fallback for equipe');
+        // fallback: create equipe doc via REST so listeners pick it up
+        const equipeFields = {
+          'membro-nome': { stringValue: 'Tester (REST)' },
+          'membro-funcao': { stringValue: 'Produtor' },
+          'timestamp': { timestampValue: new Date().toISOString() },
+          'ownerUid': { stringValue: createdLocalId }
+        };
+        // obter uid/token atuais da página para alinhar ownerUid e Authorization
+        const pageAuthEquipe = await page.evaluate(async () => {
+          try {
+            const a = (window.getAuth) ? window.getAuth() : (window.firebase && window.firebase.auth ? window.firebase.auth() : null);
+            const uid = a && a.currentUser ? a.currentUser.uid : null;
+            let token = null;
+            try { if (a && a.currentUser && a.currentUser.getIdToken) token = await a.currentUser.getIdToken(true); } catch(e) {}
+            return { uid, token };
+          } catch (e) { return { uid: null, token: null }; }
+        });
+        const ownerForEquipeRest = pageAuthEquipe.uid || createdLocalId;
+        const tokenForEquipeRest = pageAuthEquipe.token || createdUserIdToken;
+        await createSubcollectionDocViaRest(eventId, 'equipe', equipeFields, tokenForEquipeRest);
+        // aguardar UI refletir
+        // reinicializar listeners no cliente para forçar sincronização imediata
+        await page.evaluate(() => { try { if (window.iniciarListenersTempoReal) window.iniciarListenersTempoReal(); } catch (e) {} });
+        await page.waitForFunction(() => {
+          const lista = document.querySelector('#lista-equipe');
+          return lista && lista.querySelectorAll('.video-card').length > 0;
+        }, { timeout: 5000 }).catch(() => { console.warn('Timeout aguardando membro de equipe após fallback REST, continuando...'); });
+      }
 
     const equipeCount = await page.$$eval('#lista-equipe .video-card', els => els.length).catch(() => 0);
     if (equipeCount === 0) {
@@ -382,18 +596,45 @@ const path = require('path');
     console.log('Testando seção de entregas...');
     await page.click('nav a[href="#entregas"]');
     await page.waitForSelector('#form-entrega', { timeout: 10000 });
+    await page.evaluate(() => {
+      const f = document.querySelector('#form-entrega');
+      if (f) f.addEventListener('submit', (ev) => { console.log('FORM_SUBMIT_ATTEMPT: form-entrega'); });
+      const btn = document.querySelector('#btn-salvar-entrega');
+      if (btn) btn.addEventListener('click', () => console.log('BTN_CLICKED: btn-salvar-entrega'));
+    });
     await page.type('input[name="entrega-titulo"]', 'Entrega E2E');
     await page.type('input[name="entrega-prazo"]', '2025-12-31');
     await page.click('#btn-salvar-entrega');
-    await page.waitForTimeout(1500);
-
-    // Aguardar que a entrega seja adicionada
-    await page.waitForFunction(() => {
-      const lista = document.querySelector('#lista-entregas');
-      return lista && lista.querySelectorAll('.video-card').length > 0;
-    }, { timeout: 5000 }).catch(() => {
-      console.warn('Timeout aguardando entrega, continuando...');
-    });
+    const entregaSaved = await page.evaluate(() => new Promise((res) => {
+      const timeout = 7000;
+      let t = setTimeout(() => res(false), timeout);
+      document.addEventListener('save:attempt', function onAttempt(ev) {
+        if (!ev.detail || ev.detail.type !== 'entrega') return;
+        document.addEventListener('save:success', function onSuccess(sv) {
+          if (sv.detail && sv.detail.type === 'entrega') { clearTimeout(t); document.removeEventListener('save:attempt', onAttempt); res(true); }
+        }, { once: true });
+      }, { once: true });
+      setTimeout(() => { try { document.removeEventListener('save:attempt', () => {}); } catch(e){}; }, timeout);
+    }));
+      if (!entregaSaved) {
+        console.warn('Nenhuma confirmação de save:success para entrega');
+        const allowFallbackEntrega = !!process.env.E2E_ALLOW_FALLBACK;
+        if (!allowFallbackEntrega) throw new Error('E2E: entrega save not confirmed and REST fallback disabled (set E2E_ALLOW_FALLBACK=1 to permit)');
+        console.warn('E2E_ALLOW_FALLBACK enabled: performing REST fallback for entrega');
+        const entregaFields = {
+          'entrega-titulo': { stringValue: 'Entrega E2E (REST)' },
+          'entrega-prazo': { stringValue: '2025-12-31' },
+          'entrega-status': { stringValue: 'pendente' },
+          'timestamp': { timestampValue: new Date().toISOString() },
+          'ownerUid': { stringValue: createdLocalId }
+        };
+        await createSubcollectionDocViaRest(eventId, 'entregas', entregaFields, createdUserIdToken);
+        await page.evaluate(() => { try { if (window.iniciarListenersTempoReal) window.iniciarListenersTempoReal(); } catch (e) {} });
+        await page.waitForFunction(() => {
+          const lista = document.querySelector('#lista-entregas');
+          return lista && lista.querySelectorAll('.video-card').length > 0;
+        }, { timeout: 5000 }).catch(() => { console.warn('Timeout aguardando entrega após fallback REST, continuando...'); });
+      }
 
     const entregasCount = await page.$$eval('#lista-entregas .video-card', els => els.length).catch(() => 0);
     if (entregasCount === 0) {
@@ -406,19 +647,46 @@ const path = require('path');
     console.log('Testando seção de vídeos...');
     await page.click('nav a[href="#videos"]');
     await page.waitForSelector('#form-video', { timeout: 10000 });
+    await page.evaluate(() => {
+      const f = document.querySelector('#form-video');
+      if (f) f.addEventListener('submit', (ev) => { console.log('FORM_SUBMIT_ATTEMPT: form-video'); });
+      const btn = document.querySelector('#btn-salvar-video');
+      if (btn) btn.addEventListener('click', () => console.log('BTN_CLICKED: btn-salvar-video'));
+    });
     await page.select('select[name="video-categoria"]', 'realtime');
     await page.select('select[name="video-tipo"]', 'reel');
     await page.type('textarea[name="video-descricao"]', 'Vídeo E2E teste');
     await page.click('#btn-salvar-video');
-    await page.waitForTimeout(1500);
-
-    // Aguardar que o vídeo seja adicionado
-    await page.waitForFunction(() => {
-      const lista = document.querySelector('#lista-videos');
-      return lista && lista.querySelectorAll('.video-card').length > 0;
-    }, { timeout: 5000 }).catch(() => {
-      console.warn('Timeout aguardando vídeo, continuando...');
-    });
+    const videoSaved = await page.evaluate(() => new Promise((res) => {
+      const timeout = 7000;
+      let t = setTimeout(() => res(false), timeout);
+      document.addEventListener('save:attempt', function onAttempt(ev) {
+        if (!ev.detail || ev.detail.type !== 'video') return;
+        document.addEventListener('save:success', function onSuccess(sv) {
+          if (sv.detail && sv.detail.type === 'video') { clearTimeout(t); document.removeEventListener('save:attempt', onAttempt); res(true); }
+        }, { once: true });
+      }, { once: true });
+      setTimeout(() => { try { document.removeEventListener('save:attempt', () => {}); } catch(e){}; }, timeout);
+    }));
+      if (!videoSaved) {
+        console.warn('Nenhuma confirmação de save:success para vídeo');
+        const allowFallbackVideo = !!process.env.E2E_ALLOW_FALLBACK;
+        if (!allowFallbackVideo) throw new Error('E2E: video save not confirmed and REST fallback disabled (set E2E_ALLOW_FALLBACK=1 to permit)');
+        console.warn('E2E_ALLOW_FALLBACK enabled: performing REST fallback for video');
+        const videoFields = {
+          'descricao': { stringValue: 'Vídeo E2E teste (REST)' },
+          'categoria': { stringValue: 'realtime' },
+          'tipo': { stringValue: 'reel' },
+          'timestamp': { timestampValue: new Date().toISOString() },
+          'ownerUid': { stringValue: createdLocalId }
+        };
+        await createSubcollectionDocViaRest(eventId, 'videos', videoFields, createdUserIdToken);
+        await page.evaluate(() => { try { if (window.iniciarListenersTempoReal) window.iniciarListenersTempoReal(); } catch (e) {} });
+        await page.waitForFunction(() => {
+          const lista = document.querySelector('#lista-videos');
+          return lista && lista.querySelectorAll('.video-card').length > 0;
+        }, { timeout: 5000 }).catch(() => { console.warn('Timeout aguardando vídeo após fallback REST, continuando...'); });
+      }
 
     const videosCount = await page.$$eval('#lista-videos .video-card', els => els.length).catch(() => 0);
     if (videosCount === 0) {

@@ -22,6 +22,26 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } f
 // Inicialização do Firestore (o app deve ser inicializado em index.html antes deste módulo)
 const db = getFirestore();
 
+// Tornar algumas funções/utilitários acessíveis globalmente para testes E2E e integrações
+try {
+    if (typeof window !== 'undefined') {
+    // expose the initialized auth instance and a getter for compat with tests
+    window.auth = auth;
+    window.getAuth = () => auth;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.signOut = signOut;
+        window.serverTimestamp = serverTimestamp;
+        window.firebaseDb = db;
+    // permitir reinicializar listeners em E2E quando necessário
+    window.iniciarListenersTempoReal = iniciarListenersTempoReal;
+    // expor AppState para testes controlarem contexto (apenas em dev/local)
+    try { window.AppState = AppState; } catch (e) {}
+    }
+} catch (e) {
+    // ambiente não-browser — ignorar
+}
+
 // Estado centralizado da aplicação
 const AppState = {
     eventoId: null,
@@ -145,6 +165,7 @@ async function reauth() {
 }
 
 function requireAuth() {
+    console.log('requireAuth: AppState.user=', AppState.user);
     if (AppState.user) return true;
     showNotification('Autentique-se para executar esta ação (recarregue a página para tentar autenticação).', true);
     return false;
@@ -324,11 +345,41 @@ async function adicionarItemCronograma() {
     };
     
     try {
-        await addDoc(collection(db, "eventos", AppState.eventoId, "cronograma"), novoItem);
+        // tentar garantir que o ownerUid do evento esteja disponível e alinhado com o usuário atual
+        try { await waitForEventOwnerMatch(5000); } catch(e) {}
+        // Diagnostic logs to help E2E debug permission issues
+        try {
+            console.log('DEBUG adicionarItemCronograma: auth.currentUser.uid=', auth && auth.currentUser ? auth.currentUser.uid : null, 'AppState.eventoData.ownerUid=', AppState.eventoData ? AppState.eventoData.ownerUid : null, 'AppState.eventoId=', AppState.eventoId);
+        } catch (e) {}
+    const ref = await addDoc(collection(db, "eventos", AppState.eventoId, "cronograma"), novoItem);
+    try { window.__pendingSave = { type: 'cronograma', id: ref.id }; document.dispatchEvent(new CustomEvent('save:attempt', { detail: { type: 'cronograma', id: ref.id } })); } catch (e) {}
     } catch (error) {
         console.error("Erro ao adicionar item: ", error);
         showNotification('Erro ao adicionar item: ' + error.message, true);
     }
+}
+
+// Helper: aguarda até que o document eventos/{eventoId}.ownerUid === auth.currentUser.uid
+// retorna true se alinhou dentro do timeout, false caso contrário
+async function waitForEventOwnerMatch(timeoutMs = 3000, intervalMs = 250) {
+    if (!AppState.eventoId) return false;
+    const uid = auth && auth.currentUser ? auth.currentUser.uid : null;
+    if (!uid) return false;
+    const ref = doc(db, 'eventos', AppState.eventoId);
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+        try {
+            const snap = await getDoc(ref);
+            if (snap && snap.exists()) {
+                const data = snap.data();
+                if (data && data.ownerUid && data.ownerUid === uid) return true;
+            }
+        } catch (e) {
+            // ignorar e tentar novamente
+        }
+        await new Promise(r => setTimeout(r, intervalMs));
+    }
+    return false;
 }
 
 // Função para atualizar item do cronograma
@@ -359,6 +410,7 @@ async function removerItemCronograma(itemId) {
 // Função para renderizar a tabela de cronograma
 function renderizarCronograma(items) {
     const tbody = document.querySelector('#tabela-cronograma tbody');
+    if (!tbody) return;
     tbody.innerHTML = '';
     
     items.forEach(item => {
@@ -397,8 +449,14 @@ function renderizarCronograma(items) {
 // Função para salvar/atualizar vídeo
 async function salvarVideo(e) {
     e.preventDefault();
+    console.log('salvarVideo: handler invoked');
     if (!requireAuth()) return;
 
+    console.log('salvarVideo: after requireAuth AppState.eventoId=', AppState.eventoId, 'user=', AppState.user);
+    if (!AppState.eventoId && typeof window !== 'undefined' && window.AppState && window.AppState.eventoId) {
+        AppState.eventoId = window.AppState.eventoId;
+        console.log('salvarVideo: reconciled AppState.eventoId from window.AppState=', AppState.eventoId);
+    }
     if (!AppState.eventoId) {
         showNotification('Primeiro salve as informações gerais do evento', true);
         return;
@@ -423,28 +481,91 @@ async function salvarVideo(e) {
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Salvando...'; }
 
     try {
+        console.log('salvarVideo: attempting to save', { videoId, data });
         if (videoId) {
             // Atualizar vídeo existente
-            await updateDoc(doc(db, "eventos", AppState.eventoId, "videos", videoId), {
-                ...data,
-                ultimaModificacao: serverTimestamp()
-            });
-            showNotification('Vídeo atualizado com sucesso!');
+            try {
+                const evDoc = await getDoc(doc(db, 'eventos', AppState.eventoId));
+                console.log('DEBUG salvarVideo: currentUid=', auth.currentUser ? auth.currentUser.uid : null, 'event.ownerUid=', evDoc && evDoc.exists() ? evDoc.data().ownerUid : null);
+            } catch (e) { console.warn('DEBUG salvarVideo: failed to read event doc', e); }
+            // aguardar alinhamento ownerUid (timeout maior) e log detalhado antes da tentativa
+            try { await waitForEventOwnerMatch(7000); } catch (e) {}
+            // Pre-write diagnostics
+            try {
+                const evRef = doc(db, 'eventos', AppState.eventoId);
+                const evSnap = await getDoc(evRef);
+                console.log('PREWRITE salvarVideo (update): event.exists=', evSnap && evSnap.exists(), 'event.data=', evSnap && evSnap.exists() ? evSnap.data() : null);
+                console.log('PREWRITE salvarVideo payload=', { ...data, ultimaModificacao: '<serverTimestamp>' });
+            } catch (e) { console.warn('PREWRITE salvarVideo: failed to read event doc', e); }
+
+            // Tentativa com retry em caso de falhas intermitentes (ex: PERMISSION_DENIED por propagação)
+            let saveAttempts = 0;
+            const saveMaxAttempts = 3;
+            while (true) {
+                try {
+                    await updateDoc(doc(db, "eventos", AppState.eventoId, "videos", videoId), {
+                        ...data,
+                        ultimaModificacao: serverTimestamp()
+                    });
+                    showNotification('Vídeo atualizado com sucesso!');
+                    // marcar pending save para confirmação via onSnapshot
+                    try { window.__pendingSave = { type: 'video', id: videoId }; document.dispatchEvent(new CustomEvent('save:attempt', { detail: { type: 'video', id: videoId } })); } catch (e) {}
+                    break;
+                } catch (err) {
+                    saveAttempts++;
+                    console.error('salvarVideo: update attempt failed', saveAttempts, err && err.code, err && err.message);
+                    if (saveAttempts >= saveMaxAttempts) throw err;
+                    // brief backoff and re-check owner visibility
+                    await new Promise(r => setTimeout(r, 500));
+                    try { await waitForEventOwnerMatch(3000); } catch (e) {}
+                }
+            }
         } else {
             // Adicionar novo vídeo
-            await addDoc(collection(db, "eventos", AppState.eventoId, "videos"), {
-                ...data,
-                ownerUid: auth.currentUser ? auth.currentUser.uid : null
-            });
-            showNotification('Vídeo adicionado com sucesso!');
+            try {
+                const evDoc = await getDoc(doc(db, 'eventos', AppState.eventoId));
+                console.log('DEBUG salvarVideo (add): currentUid=', auth.currentUser ? auth.currentUser.uid : null, 'event.ownerUid=', evDoc && evDoc.exists() ? evDoc.data().ownerUid : null);
+            } catch (e) { console.warn('DEBUG salvarVideo: failed to read event doc', e); }
+            try { await waitForEventOwnerMatch(7000); } catch(e) {}
+            // Pre-write diagnostics
+            try {
+                const evRef = doc(db, 'eventos', AppState.eventoId);
+                const evSnap = await getDoc(evRef);
+                console.log('PREWRITE salvarVideo (add): event.exists=', evSnap && evSnap.exists(), 'event.data=', evSnap && evSnap.exists() ? evSnap.data() : null);
+                console.log('PREWRITE salvarVideo payload=', { ...data, ownerUid: auth.currentUser ? auth.currentUser.uid : null });
+            } catch (e) { console.warn('PREWRITE salvarVideo (add): failed to read event doc', e); }
+
+            // Retry loop for add
+            let addAttempts = 0;
+            const addMaxAttempts = 3;
+            let ref = null;
+            while (true) {
+                try {
+                    ref = await addDoc(collection(db, "eventos", AppState.eventoId, "videos"), {
+                        ...data,
+                        ownerUid: auth.currentUser ? auth.currentUser.uid : null
+                    });
+                    showNotification('Vídeo adicionado com sucesso!');
+                    try { window.__pendingSave = { type: 'video', id: ref.id }; document.dispatchEvent(new CustomEvent('save:attempt', { detail: { type: 'video', id: ref.id } })); } catch (e) {}
+                    break;
+                } catch (err) {
+                    addAttempts++;
+                    console.error('salvarVideo: add attempt failed', addAttempts, err && err.code, err && err.message);
+                    if (addAttempts >= addMaxAttempts) throw err;
+                    await new Promise(r => setTimeout(r, 500));
+                    try { await waitForEventOwnerMatch(3000); } catch (e) {}
+                }
+            }
         }
+
+        console.log('salvarVideo: finished saving (form reset)');
 
         // Limpar formulário
         form.reset();
 
     } catch (error) {
-        console.error("Erro ao salvar vídeo: ", error);
-        showNotification('Erro ao salvar vídeo: ' + (error.message || error), true);
+        console.error("Erro ao salvar vídeo: ", error, 'message=', error && error.message, 'code=', error && error.code);
+        showNotification('Erro ao salvar vídeo: ' + (error && error.message ? error.message : String(error)), true);
     } finally {
         // Restaurar botão
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = originalText; }
@@ -454,7 +575,13 @@ async function salvarVideo(e) {
 // --- Equipe: CRUD básico (subcollection 'equipe') ---
 async function salvarMembroEquipe(e) {
     e.preventDefault();
+    console.log('salvarMembroEquipe: handler invoked');
     if (!requireAuth()) return;
+    console.log('salvarMembroEquipe: after requireAuth AppState.eventoId=', AppState.eventoId, 'user=', AppState.user);
+    if (!AppState.eventoId && typeof window !== 'undefined' && window.AppState && window.AppState.eventoId) {
+        AppState.eventoId = window.AppState.eventoId;
+        console.log('salvarMembroEquipe: reconciled AppState.eventoId from window.AppState=', AppState.eventoId);
+    }
     if (!AppState.eventoId) { showNotification('Primeiro salve as informações gerais do evento', true); return; }
 
     const form = e.target;
@@ -464,18 +591,33 @@ async function salvarMembroEquipe(e) {
     data.timestamp = serverTimestamp();
     data.ownerUid = auth.currentUser ? auth.currentUser.uid : null;
 
+    console.log('salvarMembroEquipe: submitting', {id, data});
+
     try {
         if (id) {
+            try {
+                const evDoc = await getDoc(doc(db, 'eventos', AppState.eventoId));
+                console.log('DEBUG salvarMembroEquipe: currentUid=', auth.currentUser ? auth.currentUser.uid : null, 'event.ownerUid=', evDoc && evDoc.exists() ? evDoc.data().ownerUid : null);
+            } catch (e) { console.warn('DEBUG salvarMembroEquipe: failed to read event doc', e); }
+            try { await waitForEventOwnerMatch(3000); } catch(e) {}
             await updateDoc(doc(db, 'eventos', AppState.eventoId, 'equipe', id), { ...data, ultimaModificacao: serverTimestamp() });
             showNotification('Membro atualizado');
+            try { window.__pendingSave = { type: 'equipe', id }; document.dispatchEvent(new CustomEvent('save:attempt', { detail: { type: 'equipe', id } })); } catch (e) {}
         } else {
-            await addDoc(collection(db, 'eventos', AppState.eventoId, 'equipe'), data);
+            try {
+                const evDoc = await getDoc(doc(db, 'eventos', AppState.eventoId));
+                console.log('DEBUG salvarMembroEquipe (add): currentUid=', auth.currentUser ? auth.currentUser.uid : null, 'event.ownerUid=', evDoc && evDoc.exists() ? evDoc.data().ownerUid : null);
+            } catch (e) { console.warn('DEBUG salvarMembroEquipe: failed to read event doc', e); }
+            try { await waitForEventOwnerMatch(3000); } catch(e) {}
+            const ref = await addDoc(collection(db, 'eventos', AppState.eventoId, 'equipe'), data);
             showNotification('Membro adicionado');
+            try { window.__pendingSave = { type: 'equipe', id: ref.id }; document.dispatchEvent(new CustomEvent('save:attempt', { detail: { type: 'equipe', id: ref.id } })); } catch (e) {}
         }
         form.reset();
+        console.log('salvarMembroEquipe: finished');
     } catch (err) {
-        console.error('Erro salvar membro:', err);
-        showNotification('Erro ao salvar membro', true);
+        console.error('Erro salvar membro:', err, 'message=', err && err.message, 'code=', err && err.code);
+        showNotification('Erro ao salvar membro: ' + (err && err.message ? err.message : String(err)), true);
     }
 }
 
@@ -488,6 +630,7 @@ async function removerMembroEquipe(id) {
 function renderizarEquipe(items) {
     const container = document.getElementById('lista-equipe');
     if (!container) return;
+    console.log('renderizarEquipe: items count=', items ? items.length : 0);
     container.innerHTML = '';
     if (!items || items.length === 0) { container.innerHTML = '<p class="no-videos">Nenhum membro.</p>'; return; }
     items.forEach(m => {
@@ -508,7 +651,13 @@ function renderizarEquipe(items) {
 // --- Entregas: CRUD básico (subcollection 'entregas') ---
 async function salvarEntrega(e) {
     e.preventDefault();
+    console.log('salvarEntrega: handler invoked');
     if (!requireAuth()) return;
+    console.log('salvarEntrega: after requireAuth AppState.eventoId=', AppState.eventoId, 'user=', AppState.user);
+    if (!AppState.eventoId && typeof window !== 'undefined' && window.AppState && window.AppState.eventoId) {
+        AppState.eventoId = window.AppState.eventoId;
+        console.log('salvarEntrega: reconciled AppState.eventoId from window.AppState=', AppState.eventoId);
+    }
     if (!AppState.eventoId) { showNotification('Primeiro salve as informações gerais do evento', true); return; }
 
     const form = e.target;
@@ -516,16 +665,72 @@ async function salvarEntrega(e) {
     const id = data['entrega-id'];
     delete data['entrega-id'];
     data.timestamp = serverTimestamp();
+    data.ownerUid = auth.currentUser ? auth.currentUser.uid : null;
+    console.log('salvarEntrega: submitting', { id, data });
     try {
         if (id) {
-            await updateDoc(doc(db, 'eventos', AppState.eventoId, 'entregas', id), { ...data, ultimaModificacao: serverTimestamp() });
-            showNotification('Entrega atualizada');
+            try {
+                const evDoc = await getDoc(doc(db, 'eventos', AppState.eventoId));
+                console.log('DEBUG salvarEntrega: currentUid=', auth.currentUser ? auth.currentUser.uid : null, 'event.ownerUid=', evDoc && evDoc.exists() ? evDoc.data().ownerUid : null);
+            } catch (e) { console.warn('DEBUG salvarEntrega: failed to read event doc', e); }
+            try { await waitForEventOwnerMatch(7000); } catch(e) {}
+            try {
+                const evRef = doc(db, 'eventos', AppState.eventoId);
+                const evSnap = await getDoc(evRef);
+                console.log('PREWRITE salvarEntrega (update): event.exists=', evSnap && evSnap.exists(), 'event.data=', evSnap && evSnap.exists() ? evSnap.data() : null);
+                console.log('PREWRITE salvarEntrega payload=', { ...data, ultimaModificacao: '<serverTimestamp>' });
+            } catch (e) { console.warn('PREWRITE salvarEntrega: failed to read event doc', e); }
+
+            let saveAttempts = 0;
+            const saveMaxAttempts = 3;
+            while (true) {
+                try {
+                    await updateDoc(doc(db, 'eventos', AppState.eventoId, 'entregas', id), { ...data, ultimaModificacao: serverTimestamp() });
+                    showNotification('Entrega atualizada');
+                    try { window.__pendingSave = { type: 'entrega', id }; document.dispatchEvent(new CustomEvent('save:attempt', { detail: { type: 'entrega', id } })); } catch (e) {}
+                    break;
+                } catch (err) {
+                    saveAttempts++;
+                    console.error('salvarEntrega: update attempt failed', saveAttempts, err && err.code, err && err.message);
+                    if (saveAttempts >= saveMaxAttempts) throw err;
+                    await new Promise(r => setTimeout(r, 500));
+                    try { await waitForEventOwnerMatch(3000); } catch (e) {}
+                }
+            }
         } else {
-            await addDoc(collection(db, 'eventos', AppState.eventoId, 'entregas'), data);
-            showNotification('Entrega adicionada');
+            try {
+                const evDoc = await getDoc(doc(db, 'eventos', AppState.eventoId));
+                console.log('DEBUG salvarEntrega (add): currentUid=', auth.currentUser ? auth.currentUser.uid : null, 'event.ownerUid=', evDoc && evDoc.exists() ? evDoc.data().ownerUid : null);
+            } catch (e) { console.warn('DEBUG salvarEntrega: failed to read event doc', e); }
+            try { await waitForEventOwnerMatch(7000); } catch(e) {}
+            try {
+                const evRef = doc(db, 'eventos', AppState.eventoId);
+                const evSnap = await getDoc(evRef);
+                console.log('PREWRITE salvarEntrega (add): event.exists=', evSnap && evSnap.exists(), 'event.data=', evSnap && evSnap.exists() ? evSnap.data() : null);
+                console.log('PREWRITE salvarEntrega payload=', data);
+            } catch (e) { console.warn('PREWRITE salvarEntrega (add): failed to read event doc', e); }
+
+            let addAttempts = 0;
+            const addMaxAttempts = 3;
+            let ref = null;
+            while (true) {
+                try {
+                    ref = await addDoc(collection(db, 'eventos', AppState.eventoId, 'entregas'), data);
+                    showNotification('Entrega adicionada');
+                    try { window.__pendingSave = { type: 'entrega', id: ref.id }; document.dispatchEvent(new CustomEvent('save:attempt', { detail: { type: 'entrega', id: ref.id } })); } catch (e) {}
+                    break;
+                } catch (err) {
+                    addAttempts++;
+                    console.error('salvarEntrega: add attempt failed', addAttempts, err && err.code, err && err.message);
+                    if (addAttempts >= addMaxAttempts) throw err;
+                    await new Promise(r => setTimeout(r, 500));
+                    try { await waitForEventOwnerMatch(3000); } catch (e) {}
+                }
+            }
         }
         form.reset();
-    } catch (err) { console.error(err); showNotification('Erro ao salvar entrega', true); }
+        console.log('salvarEntrega: finished');
+    } catch (err) { console.error('Erro salvar entrega:', err, 'message=', err && err.message, 'code=', err && err.code); showNotification('Erro ao salvar entrega: ' + (err && err.message ? err.message : String(err)), true); }
 }
 
 async function removerEntrega(id) {
@@ -537,6 +742,7 @@ async function removerEntrega(id) {
 function renderizarEntregas(items) {
     const container = document.getElementById('lista-entregas');
     if (!container) return;
+    console.log('renderizarEntregas: items count=', items ? items.length : 0);
     container.innerHTML = '';
     if (!items || items.length === 0) { container.innerHTML = '<p class="no-videos">Nenhuma entrega.</p>'; return; }
     items.forEach(it => {
@@ -600,6 +806,7 @@ async function removerVideo(videoId) {
 function renderizarVideos(videos, categoria = 'todos') {
     const container = document.getElementById('lista-videos');
     if (!container) return;
+    console.log('renderizarVideos: videos count=', videos ? videos.length : 0, 'categoria=', categoria);
     container.innerHTML = '';
     
     // Filtrar por categoria se necessário
@@ -673,12 +880,25 @@ function popularFormularioEdicaoVideo(video) {
 }
 
 // Função para iniciar listeners em tempo real
-function iniciarListenersTempoReal() {
+async function iniciarListenersTempoReal() {
     // Parar listeners anteriores se existirem
     if (AppState.unsubscribeCronograma) try { AppState.unsubscribeCronograma(); } catch (e) {}
     if (AppState.unsubscribeVideos) try { AppState.unsubscribeVideos(); } catch (e) {}
 
     if (!AppState.eventoId) return;
+
+    // Garantir que temos os dados do evento (incluindo ownerUid) antes de anexar listeners
+    try {
+        const evRef = doc(db, 'eventos', AppState.eventoId);
+        const evSnap = await getDoc(evRef);
+        if (evSnap && evSnap.exists()) {
+            const data = evSnap.data();
+            AppState.eventoData = data || null;
+            try { updateUIWithEventData(data); } catch (e) {}
+        }
+    } catch (e) {
+        console.warn('Erro ao buscar documento do evento antes de iniciar listeners', e);
+    }
 
     // Listener para o cronograma (ordenado por timestamp)
     AppState.unsubscribeCronograma = onSnapshot(
@@ -693,6 +913,16 @@ function iniciarListenersTempoReal() {
             });
             AppState.setCronograma(items);
             renderizarCronograma(items);
+            // confirmar pending save para cronograma
+            try {
+                if (window.__pendingSave && window.__pendingSave.type === 'cronograma') {
+                    const found = items.find(i => i.id === window.__pendingSave.id);
+                    if (found) {
+                        try { document.dispatchEvent(new CustomEvent('save:success', { detail: { type: 'cronograma', id: found.id } })); } catch (e) {}
+                        window.__pendingSave = null;
+                    }
+                }
+            } catch (e) { console.warn('Erro ao confirmar save pendente cronograma', e); }
         },
         (error) => {
             console.error("Erro ao receber atualizações do cronograma: ", error);
@@ -714,6 +944,16 @@ function iniciarListenersTempoReal() {
             const categoriaAtivaEl = document.querySelector('.category-btn.active');
             const categoriaAtiva = categoriaAtivaEl ? categoriaAtivaEl.dataset.category : 'todos';
             renderizarVideos(videos, categoriaAtiva);
+            // Se houver um save pendente, verificar se o snapshot já contém o doc
+            try {
+                if (window.__pendingSave && window.__pendingSave.type === 'video') {
+                    const found = videos.find(v => v.id === window.__pendingSave.id);
+                    if (found) {
+                        try { document.dispatchEvent(new CustomEvent('save:success', { detail: { type: 'video', id: found.id } })); } catch (e) {}
+                        window.__pendingSave = null;
+                    }
+                }
+            } catch (e) { console.warn('Erro ao confirmar save pendente video', e); }
         },
         (error) => {
             console.error("Erro ao receber atualizações de vídeos: ", error);
@@ -728,6 +968,15 @@ function iniciarListenersTempoReal() {
         (snapshot) => {
             const items = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             renderizarEquipe(items);
+            try {
+                if (window.__pendingSave && window.__pendingSave.type === 'equipe') {
+                    const found = items.find(i => i.id === window.__pendingSave.id);
+                    if (found) {
+                        try { document.dispatchEvent(new CustomEvent('save:success', { detail: { type: 'equipe', id: found.id } })); } catch (e) {}
+                        window.__pendingSave = null;
+                    }
+                }
+            } catch (e) { console.warn('Erro ao confirmar save pendente equipe', e); }
         },
         (err) => { console.error('Erro sync equipe', err); }
     );
@@ -739,10 +988,58 @@ function iniciarListenersTempoReal() {
         (snapshot) => {
             const items = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             renderizarEntregas(items);
+            try {
+                if (window.__pendingSave && window.__pendingSave.type === 'entrega') {
+                    const found = items.find(i => i.id === window.__pendingSave.id);
+                    if (found) {
+                        try { document.dispatchEvent(new CustomEvent('save:success', { detail: { type: 'entrega', id: found.id } })); } catch (e) {}
+                        window.__pendingSave = null;
+                    }
+                }
+            } catch (e) { console.warn('Erro ao confirmar save pendente entrega', e); }
         },
         (err) => { console.error('Erro sync entregas', err); }
     );
+
+    // Emitir um sinal que os listeners em tempo real estão prontos - útil para E2E
+    try {
+        if (typeof window !== 'undefined') {
+            window.__listenersReady = true;
+        }
+        document.dispatchEvent(new Event('listeners-ready'));
+    } catch (e) {}
 }
+
+// Expor hooks úteis para testes (após definições de auth/listeners)
+try {
+    if (typeof window !== 'undefined') {
+        try { window.auth = auth; } catch (e) {}
+        try { window.getAuth = () => auth; } catch (e) {}
+        try { window.signInWithEmailAndPassword = signInWithEmailAndPassword; } catch (e) {}
+        try { window.createUserWithEmailAndPassword = createUserWithEmailAndPassword; } catch (e) {}
+        try { window.signOut = signOut; } catch (e) {}
+        try { window.serverTimestamp = serverTimestamp; } catch (e) {}
+        try { window.firebaseDb = db; } catch (e) {}
+        try { window.iniciarListenersTempoReal = iniciarListenersTempoReal; } catch (e) {}
+        try {
+            // helper para testes: criar evento a partir do contexto do cliente (garante ownerUid == auth.currentUser.uid)
+            window.createEventClient = async function(eventId) {
+                try {
+                    if (!eventId) return false;
+                    const owner = auth && auth.currentUser ? auth.currentUser.uid : null;
+                    if (!owner) return false;
+                    await setDoc(doc(db, 'eventos', eventId), {
+                        ownerUid: owner,
+                        infoGerais: { 'evento-nome': 'E2E Test Event' },
+                        ultimaAtualizacao: serverTimestamp()
+                    }, { merge: true });
+                    return true;
+                } catch (e) { console.warn('createEventClient failed', e); return false; }
+            };
+        } catch (e) {}
+        try { window.AppState = AppState; } catch (e) {}
+    }
+} catch (e) {}
 
 // Função para carregar dados existentes ao iniciar
 async function carregarDadosExistentes() {
@@ -896,6 +1193,7 @@ function configurarEventDelegation() {
 
 // Inicialização da aplicação
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('app: DOMContentLoaded - initializing app listeners');
     // Inicializa autenticação (tenta signin anônimo)
     initAuth();
 
@@ -917,14 +1215,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Configurar event listeners
     const formInfo = document.getElementById('form-info-gerais');
     if (formInfo) formInfo.addEventListener('submit', salvarInformacoesGerais);
+    console.log('app: listener attached to form-info-gerais?', !!formInfo);
     const addCron = document.getElementById('add-cronograma');
     if (addCron) addCron.addEventListener('click', adicionarItemCronograma);
+    console.log('app: listener attached to add-cronograma?', !!addCron);
     const formVideoEl = document.getElementById('form-video');
     if (formVideoEl) formVideoEl.addEventListener('submit', salvarVideo);
+    console.log('app: listener attached to form-video?', !!formVideoEl);
     const formEquipe = document.getElementById('form-equipe');
     if (formEquipe) formEquipe.addEventListener('submit', salvarMembroEquipe);
+    console.log('app: listener attached to form-equipe?', !!formEquipe);
     const formEntrega = document.getElementById('form-entrega');
     if (formEntrega) formEntrega.addEventListener('submit', salvarEntrega);
+    console.log('app: listener attached to form-entrega?', !!formEntrega);
     
     // Configurar event delegation
     configurarEventDelegation();
